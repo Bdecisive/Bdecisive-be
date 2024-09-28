@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app:
+    image: amazoncorretto:17-alpine
+    ports:
+      - "8080:8080"
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: bdecisive            # Database to create
+      MYSQL_ROOT_PASSWORD: secret          # Root password
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
