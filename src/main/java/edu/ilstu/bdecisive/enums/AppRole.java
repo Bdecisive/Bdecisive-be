@@ -5,5 +5,4 @@ public enum AppRole {
     ROLE_VENDOR,
     ROLE_INFLUENCER,
     ROLE_FOLLOWER,
-
 }

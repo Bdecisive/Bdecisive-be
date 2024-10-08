@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,7 +29,9 @@ public class UserController {
 
     @GetMapping("user")
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        Optional<User> userOpt = userService.findByUsername(userDetails.getUsername());
+
+        User user = userOpt.get();
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
@@ -36,7 +39,7 @@ public class UserController {
 
         UserInfoResponse response = new UserInfoResponse(
                 user.getUserId(),
-                user.getUserName(),
+                user.getUsername(),
                 user.getEmail(),
                 user.isAccountNonLocked(),
                 user.isAccountNonExpired(),
