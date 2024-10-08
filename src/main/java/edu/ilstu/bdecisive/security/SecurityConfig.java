@@ -7,6 +7,7 @@ import edu.ilstu.bdecisive.repositories.RoleRepository;
 import edu.ilstu.bdecisive.repositories.UserRepository;
 import edu.ilstu.bdecisive.security.jwt.AuthEntryPointJwt;
 import edu.ilstu.bdecisive.security.jwt.AuthTokenFilter;
+import edu.ilstu.bdecisive.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +23,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -40,18 +41,20 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf ->
-                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/auth/public/**")
-        );
-        //http.csrf(AbstractHttpConfigurer::disable);
+//        http.csrf(csrf ->
+//                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                        .ignoringRequestMatchers("/api/auth/public/**")
+//        );
+//        http.authorizeHttpRequests((requests)
+//                -> requests
+//                .requestMatchers("/api/**").permitAll()
+//                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+////                .requestMatchers("/api/csrf-token").permitAll()
+//                .anyRequest().authenticated());
+        http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests((requests)
                 -> requests
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//                .requestMatchers("/api/csrf-token").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated());
-        http.csrf(AbstractHttpConfigurer::disable);
+                .anyRequest().permitAll());
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
         http.addFilterBefore(authenticationJwtTokenFilter(),
@@ -79,7 +82,8 @@ public class SecurityConfig {
             Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
 
-            if (!userRepository.existsByUserName("admin")) {
+            Optional<User> userOpt = userRepository.findByUsername("admin");
+            if (!userOpt.isPresent()) {
                 User admin = new User("admin", "admin@example.com",
                         passwordEncoder.encode("adminPass"));
                 admin.setAccountNonLocked(true);

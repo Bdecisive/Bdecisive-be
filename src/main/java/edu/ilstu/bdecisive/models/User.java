@@ -26,19 +26,17 @@ import java.time.LocalDateTime;
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "id")
     private Long userId;
 
-    @NotBlank
-    @Size(max = 20)
     @Column(name = "username")
-    private String userName;
+    private String username;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
     @Column(name = "email")
     private String email;
+
+    private String firstName;
+    private String lastName;
 
     @Size(max = 120)
     @Column(name = "password")
@@ -56,7 +54,7 @@ public class User{
     private String signUpMethod;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
-    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
     @JsonBackReference
     @ToString.Exclude
     private Role role;
@@ -68,14 +66,14 @@ public class User{
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    public User(String userName, String email, String password) {
-        this.userName = userName;
+    public User(String username, String email, String password) {
+        this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    public User(String userName, String email) {
-        this.userName = userName;
+    public User(String username, String email) {
+        this.username = username;
         this.email = email;
     }
 

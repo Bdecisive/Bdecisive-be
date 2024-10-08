@@ -9,12 +9,15 @@ import edu.ilstu.bdecisive.repositories.PasswordResetTokenRepository;
 import edu.ilstu.bdecisive.repositories.RoleRepository;
 import edu.ilstu.bdecisive.repositories.UserRepository;
 import edu.ilstu.bdecisive.services.UserService;
+import edu.ilstu.bdecisive.utils.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -44,10 +47,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserRole(Long userId, String roleName) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         AppRole appRole = AppRole.valueOf(roleName);
         Role role = roleRepository.findByRoleName(appRole)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new ServiceException("Role not found", HttpStatus.NOT_FOUND));
         user.setRole(role);
         userRepository.save(user);
     }
@@ -68,7 +71,7 @@ public class UserServiceImpl implements UserService {
     private UserDTO convertToDto(User user) {
         return new UserDTO(
                 user.getUserId(),
-                user.getUserName(),
+                user.getUsername(),
                 user.getEmail(),
                 user.isAccountNonLocked(),
                 user.isAccountNonExpired(),
@@ -84,16 +87,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
-        Optional<User> user = userRepository.findByUserName(username);
-        return user.orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
 
     @Override
     public void updateAccountLockStatus(Long userId, boolean lock) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setAccountNonLocked(!lock);
         userRepository.save(user);
     }
@@ -107,7 +109,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateAccountExpiryStatus(Long userId, boolean expire) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setAccountNonExpired(!expire);
         userRepository.save(user);
     }
@@ -115,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateAccountEnabledStatus(Long userId, boolean enabled) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setEnabled(enabled);
         userRepository.save(user);
     }
@@ -123,7 +125,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
         User user = userRepository.findById(userId).orElseThrow(()
-                -> new RuntimeException("User not found"));
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setCredentialsNonExpired(!expire);
         userRepository.save(user);
     }
@@ -133,11 +135,11 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(Long userId, String password) {
         try {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
             user.setPassword(passwordEncoder.encode(password));
             userRepository.save(user);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update password");
+            throw new ServiceException("Failed to update password", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -160,13 +162,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid password reset token"));
+                .orElseThrow(() -> new ServiceException("Invalid password reset token", HttpStatus.NOT_FOUND));
 
         if (resetToken.isUsed())
-            throw new RuntimeException("Password reset token has already been used");
+            throw new ServiceException("Password reset token has already been used", HttpStatus.CONFLICT);
 
         if (resetToken.getExpiryDate().isBefore(Instant.now()))
-            throw new RuntimeException("Password reset token has expired");
+            throw new ServiceException("Password reset token has expired", HttpStatus.BAD_REQUEST);
 
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -182,9 +184,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(User user){
+    public User registerUser(User user, AppRole roleName, boolean isEnabled){
         if (user.getPassword() != null)
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(isEnabled);
+        user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+        user.setAccountExpiryDate(LocalDate.now().plusYears(1));
+        user.setSignUpMethod("email");
+
+        // Check if role already exists in the database
+        Role role = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
+                .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
+
+        user.setRole(role);
         return userRepository.save(user);
     }
 

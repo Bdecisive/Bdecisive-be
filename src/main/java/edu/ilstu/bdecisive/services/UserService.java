@@ -1,6 +1,7 @@
 package edu.ilstu.bdecisive.services;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
 
@@ -14,7 +15,7 @@ public interface UserService {
 
     UserDTO getUserById(Long id);
 
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     void updateAccountLockStatus(Long userId, boolean lock);
 
@@ -34,5 +35,5 @@ public interface UserService {
 
     Optional<User> findByEmail(String email);
 
-    User registerUser(User user);
+    User registerUser(User user, AppRole roleName, boolean isEnabled);
 }
