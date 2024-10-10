@@ -32,15 +32,15 @@ public class VendorServiceImpl implements VendorService {
     private VendorRepository vendorRepository;
 
     @Override
-    public void create(VendorRequestDTO requestDTO) {
+    public void create(VendorRequestDTO requestDTO) throws ServiceException {
         Optional<User> userByUsername = userService.findByUsername(requestDTO.getUsername());
         if (userByUsername.isPresent()) {
-            throw new ServiceException("Error: Username is already taken!", HttpStatus.BAD_REQUEST);
+            throw new ServiceException("Username is already taken!", HttpStatus.BAD_REQUEST);
         }
 
         Optional<User> userByEmail =  userService.findByEmail(requestDTO.getEmail());
         if (userByEmail.isPresent()) {
-            throw new ServiceException("Error: Email is already in use!", HttpStatus.BAD_REQUEST);
+            throw new ServiceException("Email is already in use!", HttpStatus.BAD_REQUEST);
         }
 
         // Create new user's account
