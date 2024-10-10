@@ -55,4 +55,17 @@ public class VendorServiceImpl implements VendorService {
         vendor.setDescription(requestDTO.getDescription());
         vendorRepository.save(vendor);
     }
+
+    @Override
+    public boolean approveVendorAccount(Long vendorId) {
+        Optional<Vendor> optionalVendor = vendorRepository.findById(vendorId);
+        if (optionalVendor.isPresent()) {
+            Vendor vendor = optionalVendor.get();
+            vendor.setIsApproved(true);
+            vendorRepository.save(vendor);
+            return true;
+        }
+        return false;
+    }
+
 }

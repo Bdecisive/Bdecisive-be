@@ -20,6 +20,17 @@ public class VendorController {
     @PostMapping("create")
     public ResponseEntity<?> createVendorRequest(@Valid @RequestBody VendorRequestDTO requestDTO) {
         vendorService.create(requestDTO);
-        return ResponseEntity.ok("Vendor request creted successfully");
+        return ResponseEntity.ok("Vendor request created successfully");
     }
+
+    @PostMapping("/approve")
+    public ResponseEntity<String> approveVendorAccount(@RequestParam Long vendorId) {
+        boolean isApproved = vendorService.approveVendorAccount(vendorId);
+        if (isApproved) {
+            return ResponseEntity.ok("Vendor account approved successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vendor approval failed");
+        }
+    }
+
 }
