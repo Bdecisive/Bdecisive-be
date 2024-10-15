@@ -23,7 +23,7 @@ public class VendorController {
         return ResponseEntity.ok("Vendor request created successfully");
     }
 
-    @PostMapping("/approve")
+    @PostMapping("approve")
     public ResponseEntity<String> approveVendorAccount(@RequestParam Long vendorId) {
         boolean isApproved = vendorService.approveVendorAccount(vendorId);
         if (isApproved) {
