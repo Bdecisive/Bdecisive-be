@@ -2,6 +2,7 @@ package edu.ilstu.bdecisive.controllers;
 
 import edu.ilstu.bdecisive.dtos.VendorRequestDTO;
 import edu.ilstu.bdecisive.services.VendorService;
+import edu.ilstu.bdecisive.utils.ServiceException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class VendorController {
     VendorService vendorService;
 
     @PostMapping("create")
-    public ResponseEntity<?> createVendorRequest(@Valid @RequestBody VendorRequestDTO requestDTO) {
+    public ResponseEntity<?> createVendorRequest(@Valid @RequestBody VendorRequestDTO requestDTO) throws ServiceException {
         vendorService.create(requestDTO);
         return ResponseEntity.ok("Vendor request created successfully");
     }
