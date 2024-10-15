@@ -57,11 +57,11 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public boolean approveVendorAccount(Long vendorId) {
+    public boolean approveVendorAccount(Long vendorId) throws ServiceException {
         Optional<Vendor> optionalVendor = vendorRepository.findById(vendorId);
         if (optionalVendor.isPresent()) {
             Vendor vendor = optionalVendor.get();
-            vendor.setIsApproved(true);
+            vendor.setApproved(true);
             vendorRepository.save(vendor);
             return true;
         } else {
