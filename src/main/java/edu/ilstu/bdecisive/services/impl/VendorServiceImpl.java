@@ -64,8 +64,11 @@ public class VendorServiceImpl implements VendorService {
             vendor.setIsApproved(true);
             vendorRepository.save(vendor);
             return true;
+        } else {
+            throw new ServiceException(
+                    String.format("Vendor account doesn't exist for id: %d", vendorId),
+                    HttpStatus.NOT_FOUND);
         }
-        return false;
     }
 
 }
