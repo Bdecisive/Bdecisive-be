@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
 //    EmailService emailService;
 
     @Override
-    public void updateUserRole(Long userId, String roleName) {
+    public void updateUserRole(Long userId, String roleName) throws ServiceException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         AppRole appRole = AppRole.valueOf(roleName);
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void updateAccountLockStatus(Long userId, boolean lock) {
+    public void updateAccountLockStatus(Long userId, boolean lock) throws ServiceException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setAccountNonLocked(!lock);
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountExpiryStatus(Long userId, boolean expire) {
+    public void updateAccountExpiryStatus(Long userId, boolean expire) throws ServiceException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setAccountNonExpired(!expire);
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+    public void updateAccountEnabledStatus(Long userId, boolean enabled) throws ServiceException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setEnabled(enabled);
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+    public void updateCredentialsExpiryStatus(Long userId, boolean expire) throws ServiceException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
         user.setCredentialsNonExpired(!expire);
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void updatePassword(Long userId, String password) {
+    public void updatePassword(Long userId, String password) throws ServiceException {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void resetPassword(String token, String newPassword) {
+    public void resetPassword(String token, String newPassword) throws ServiceException {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ServiceException("Invalid password reset token", HttpStatus.NOT_FOUND));
 

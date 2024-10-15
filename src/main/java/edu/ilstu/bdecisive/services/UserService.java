@@ -4,12 +4,13 @@ import edu.ilstu.bdecisive.dtos.UserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
+import edu.ilstu.bdecisive.utils.ServiceException;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    void updateUserRole(Long userId, String roleName);
+    void updateUserRole(Long userId, String roleName) throws ServiceException;
 
     List<User> getAllUsers();
 
@@ -17,21 +18,21 @@ public interface UserService {
 
     Optional<User> findByUsername(String username);
 
-    void updateAccountLockStatus(Long userId, boolean lock);
+    void updateAccountLockStatus(Long userId, boolean lock) throws ServiceException;
 
     List<Role> getAllRoles();
 
-    void updateAccountExpiryStatus(Long userId, boolean expire);
+    void updateAccountExpiryStatus(Long userId, boolean expire) throws ServiceException;
 
-    void updateAccountEnabledStatus(Long userId, boolean enabled);
+    void updateAccountEnabledStatus(Long userId, boolean enabled) throws ServiceException;
 
-    void updateCredentialsExpiryStatus(Long userId, boolean expire);
+    void updateCredentialsExpiryStatus(Long userId, boolean expire) throws ServiceException;
 
-    void updatePassword(Long userId, String password);
+    void updatePassword(Long userId, String password) throws ServiceException;
 
     void generatePasswordResetToken(String email);
 
-    void resetPassword(String token, String newPassword);
+    void resetPassword(String token, String newPassword) throws ServiceException;
 
     Optional<User> findByEmail(String email);
 

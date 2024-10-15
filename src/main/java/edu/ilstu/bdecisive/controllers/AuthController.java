@@ -6,6 +6,7 @@ import edu.ilstu.bdecisive.security.response.LoginResponse;
 import edu.ilstu.bdecisive.security.response.MessageResponse;
 import edu.ilstu.bdecisive.security.services.UserDetailsImpl;
 import edu.ilstu.bdecisive.services.UserService;
+import edu.ilstu.bdecisive.utils.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,12 +88,12 @@ public class AuthController {
 
     @PostMapping("reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token,
-                                           @RequestParam String newPassword) {
+                                           @RequestParam String newPassword) throws ServiceException {
         // TODO: Not functional. Need to fix service method
         try {
             userService.resetPassword(token, newPassword);
             return ResponseEntity.ok(new MessageResponse("Password reset successful"));
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageResponse(e.getMessage()));
         }
