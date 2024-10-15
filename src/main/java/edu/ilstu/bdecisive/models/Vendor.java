@@ -28,11 +28,4 @@ public class Vendor {
 
     private boolean isApproved;
 
-    public boolean isApproved() {
-        return isApproved;
-    }
-
-    public void setIsApproved(boolean isApproved) {
-        this.isApproved = isApproved;
-    }
 }
