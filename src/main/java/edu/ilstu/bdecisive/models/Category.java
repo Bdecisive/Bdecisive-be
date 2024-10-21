@@ -10,23 +10,20 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @Table(name = "categories")
-
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "categoryID")
+    @Column(name = "id")
     private Long categoryID;
 
-    @Column(name = "categoryName")
+    @Column(name = "category_name")
     private String categoryName;
 
-    @Column(name = "categoryDescription")
+    @Column(name = "category_description")
     private String categoryDescription;
-
     @JsonManagedReference
     @ToString.Exclude
-
     private boolean isApproved;
 
     public Category( String categoryName, String categoryDescription)

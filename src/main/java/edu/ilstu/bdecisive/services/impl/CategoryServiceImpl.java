@@ -10,15 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-
-
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-
     @Autowired
     private CategoryRepository categoryRepository;
-
 
     @Override
     public Optional<Category> findByCategoryName(String categoryName) {
@@ -26,7 +22,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void create(CategoryRequestDTO requestDTO) {
+    public void create(CategoryRequestDTO requestDTO)  throws ServiceException{
 
         Optional<Category> categoryByName = findByCategoryName(requestDTO.getCategoryName());
 
@@ -37,7 +33,5 @@ public class CategoryServiceImpl implements CategoryService {
         //create new category
         Category category = new Category(requestDTO.getCategoryName(), requestDTO.getCategoryDescription());
         categoryRepository.save(category);
-
     }
-
 }
