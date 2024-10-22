@@ -1,8 +1,8 @@
 package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.models.Follower;
+import edu.ilstu.bdecisive.repositories.FollowerRepository;
 import edu.ilstu.bdecisive.repositories.RoleRepository;
-import edu.ilstu.bdecisive.repositories.UserRepository;
 import edu.ilstu.bdecisive.services.FollowerService;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class FollowerServiceImpl implements FollowerService {
 
     @Autowired
-    private UserRepository userRepository;
+    private FollowerRepository followerRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -43,12 +43,12 @@ public class FollowerServiceImpl implements FollowerService {
 
         follower.setRole(role);
 
-        return userRepository.save(follower);
+        return followerRepository.save(follower);
     }
 
     @Override
     public String addComment(Long followerId, String comment) {
-        Follower follower = (Follower) userRepository.findById(followerId)
+        Follower follower = (Follower) followerRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("Follower not found"));
 
         return follower.addComment(comment);
