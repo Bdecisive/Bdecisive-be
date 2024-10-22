@@ -19,6 +19,9 @@ public class VendorRequestDTO {
 
     private String description;
 
+
+
+
     @NotBlank
     @Size(max = 70)
     @Email
