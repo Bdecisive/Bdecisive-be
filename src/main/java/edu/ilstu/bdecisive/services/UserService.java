@@ -1,6 +1,7 @@
 package edu.ilstu.bdecisive.services;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
@@ -37,4 +38,6 @@ public interface UserService {
     Optional<User> findByEmail(String email);
 
     User registerUser(User user, AppRole roleName, boolean isEnabled);
+
+    void save(User user);
 }

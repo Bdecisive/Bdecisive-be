@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
-@RequestMapping("/api/vendor/")
+@RequestMapping("/api/vendors/")
 public class VendorController {
 
     @Autowired
