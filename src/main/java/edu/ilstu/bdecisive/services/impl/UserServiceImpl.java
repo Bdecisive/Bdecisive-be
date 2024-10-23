@@ -26,7 +26,7 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Value("${frontend.url}")
+    @Value("${base.url}")
     String frontendUrl;
 
     @Autowired
