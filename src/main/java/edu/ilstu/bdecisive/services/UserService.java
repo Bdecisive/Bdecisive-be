@@ -37,4 +37,6 @@ public interface UserService {
     Optional<User> findByEmail(String email);
 
     User registerUser(User user, AppRole roleName, boolean isEnabled);
+
+    void updateUserProfile(Long userId, UserDTO userProfileDTO) throws ServiceException;
 }
