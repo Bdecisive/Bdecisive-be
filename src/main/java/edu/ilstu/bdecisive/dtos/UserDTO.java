@@ -15,9 +15,6 @@ public class UserDTO {
     private Long userId;
     private String userName;
     private String email;
-    private boolean accountNonLocked;
-    private boolean accountNonExpired;
-    private boolean credentialsNonExpired;
     private boolean enabled;
     private LocalDate credentialsExpiryDate;
     private LocalDate accountExpiryDate;
