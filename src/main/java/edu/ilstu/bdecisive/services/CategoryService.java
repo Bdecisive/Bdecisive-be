@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface CategoryService {
 
     void create(CategoryRequestDTO requestDTO) throws ServiceException;
+    boolean approveCategory(Long categoryId) throws ServiceException;
     Optional<Category> findByCategoryName(String categoryName);
 }
 
