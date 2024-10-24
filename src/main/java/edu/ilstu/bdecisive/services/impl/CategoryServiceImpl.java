@@ -2,6 +2,7 @@ package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.models.Category;
+import edu.ilstu.bdecisive.models.Vendor;
 import edu.ilstu.bdecisive.repositories.CategoryRepository;
 import edu.ilstu.bdecisive.services.CategoryService;
 import edu.ilstu.bdecisive.utils.ServiceException;
@@ -26,12 +27,37 @@ public class CategoryServiceImpl implements CategoryService {
 
         Optional<Category> categoryByName = findByCategoryName(requestDTO.getCategoryName());
 
+        //validate that the Category does not already exist
         if (categoryByName.isPresent()) {
             throw new ServiceException("Error: Category already exists", HttpStatus.BAD_REQUEST);
         }
 
         //create new category
         Category category = new Category(requestDTO.getCategoryName(), requestDTO.getCategoryDescription());
+        category.setApproved(false);
         categoryRepository.save(category);
     }
+
+    @Override
+    public boolean approveCategory(Long categoryId) throws ServiceException {
+
+        //make sure category request exists
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+
+        //if it exists approve the category
+        if (optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();
+            category.setApproved(true);
+            categoryRepository.save(category);
+            return true;
+        }
+        //if the category does not exist throw exception
+        else {
+            throw new ServiceException(
+                    String.format("Category doesn't exist for id: %d", categoryId),
+                    HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 }
