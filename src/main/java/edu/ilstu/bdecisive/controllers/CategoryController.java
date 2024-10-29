@@ -28,6 +28,7 @@ public class CategoryController {
     }
 
     @GetMapping("admin")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<CategoryResponseDTO>> getAdminCategories(@RequestParam Optional<String> name,
                                                           @RequestParam Optional<String> description) {
         return ResponseEntity.ok(categoryService.list(name, description, true));
