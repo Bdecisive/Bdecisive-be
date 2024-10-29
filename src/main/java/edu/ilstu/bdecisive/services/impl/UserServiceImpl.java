@@ -10,12 +10,16 @@ import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.repositories.PasswordResetTokenRepository;
 import edu.ilstu.bdecisive.repositories.RoleRepository;
 import edu.ilstu.bdecisive.repositories.UserRepository;
+import edu.ilstu.bdecisive.security.services.UserDetailsImpl;
 import edu.ilstu.bdecisive.services.UserService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -199,8 +203,8 @@ public class UserServiceImpl implements UserService {
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
         // Check if role already exists in the database
-        Role role = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
+        Role role = roleRepository.findByRoleName(roleName)
+                .orElseGet(() -> roleRepository.save(new Role(roleName)));
 
         user.setRole(role);
 
@@ -211,5 +215,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         userRepository.save(user);
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Optional<User> user = userRepository.findById(userDetails.getId());
+            return user.orElseThrow(() -> new RuntimeException("User not found"));
+        }
+        return null;
     }
 }

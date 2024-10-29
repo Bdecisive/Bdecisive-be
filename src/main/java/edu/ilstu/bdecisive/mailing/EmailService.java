@@ -6,5 +6,6 @@ import jakarta.mail.MessagingException;
 public interface EmailService {
     void sendVerificationEmail(String to, String subject, String text) throws MessagingException;
     void sendVerificationEmail(User user);
+    void sendCategoryConfirmationEmail(User user, String categoryName, boolean isApproved);
     String generateVerificationCode();
 }

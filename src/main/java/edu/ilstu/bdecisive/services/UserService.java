@@ -6,6 +6,7 @@ import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.utils.ServiceException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,6 @@ public interface UserService {
     User registerUser(User user, AppRole roleName, boolean isEnabled);
 
     void save(User user);
+
+    User getCurrentUser();
 }

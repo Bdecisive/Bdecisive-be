@@ -1,5 +1,6 @@
 package edu.ilstu.bdecisive.mailing;
 
+import edu.ilstu.bdecisive.models.Category;
 import edu.ilstu.bdecisive.models.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -45,6 +46,40 @@ public class EmailServiceImpl implements EmailService {
 
         try {
             sendVerificationEmail(user.getEmail(), subject, htmlMessage);
+        } catch (MessagingException e) {
+            // Handle email sending exception
+            e.printStackTrace();
+        }
+    }
+
+    public void sendCategoryConfirmationEmail(User user, String categoryName, boolean isApproved) {
+        String subject = isApproved ? "Your Category Submission Has Been Approved!"
+                : "Update on Your Category Submission";
+
+        String approvedMsg = "<html>"
+                + "<body style=\"font-family: Arial, sans-serif;\">"
+                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
+                + "<p style=\"font-size: 16px;\">We are pleased to inform you that your category submission, \""+ categoryName +"\" has been successfully approved!</p>"
+                + "<p style=\"font-size: 16px;\">Thank you for contributing to our platform. Your category is now live and visible to our community, and we look forward to the value it will bring.</p>"
+                + "<p style=\"font-size: 16px;\">If you have any questions or need further assistance, feel free to reach out to us.</p>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+        String rejctionMsg = "<html>"
+                + "<body style=\"font-family: Arial, sans-serif;\">"
+                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
+                + "<p style=\"font-size: 16px;\">Thank you for submitting \""+ categoryName +"\" to our platform. After careful review, we regret to inform you that your category submission did not meet the approval criteria at this time.</p>"
+                + "<p style=\"font-size: 16px;\">If you would like feedback or assistance to help with a future submission, please feel free to reach out to us.</p>"
+                + "<p style=\"font-size: 16px;\">Thank you for your understanding, and we hope to see your contributions again.</p>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+
+        String msg = isApproved ? approvedMsg : rejctionMsg;
+        try {
+            sendVerificationEmail(user.getEmail(), subject, msg);
         } catch (MessagingException e) {
             // Handle email sending exception
             e.printStackTrace();
