@@ -1,15 +1,20 @@
 package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
+import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.models.Category;
-import edu.ilstu.bdecisive.models.Vendor;
 import edu.ilstu.bdecisive.repositories.CategoryRepository;
 import edu.ilstu.bdecisive.services.CategoryService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -20,6 +25,27 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Optional<Category> findByCategoryName(String categoryName) {
         return categoryRepository.findByCategoryName(categoryName);
+    }
+
+    @Override
+    public List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description) {
+        Category categoryExample = new Category();
+        name.ifPresent(categoryExample::setCategoryName);
+        description.ifPresent(categoryExample::setCategoryDescription);
+
+        ExampleMatcher matcher = ExampleMatcher.matchingAll()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) // Ensures partial matching
+                .withIgnoreCase() // Applies ignore case by default
+                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
+                .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+
+        Example<Category> example = Example.of(categoryExample, matcher);
+
+        List<Category> categories = categoryRepository.findAll(example);
+        return categories.stream()
+                .map(category -> new CategoryResponseDTO(category.getCategoryID(),
+                        category.getCategoryName(), category.getCategoryDescription()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -58,6 +84,4 @@ public class CategoryServiceImpl implements CategoryService {
                     HttpStatus.NOT_FOUND);
         }
     }
-
-
 }
