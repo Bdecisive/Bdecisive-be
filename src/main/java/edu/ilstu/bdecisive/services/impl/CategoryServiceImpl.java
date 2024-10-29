@@ -37,13 +37,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, boolean isAdmin) {
+    public List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved) {
         Category categoryExample = new Category();
         name.ifPresent(categoryExample::setCategoryName);
         description.ifPresent(categoryExample::setCategoryDescription);
-        if (!isAdmin) {
-            categoryExample.setApproved(true);
-        }
+        approved.ifPresent(categoryExample::setApproved);
 
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) // Ensures partial matching
@@ -55,8 +53,8 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findAll(example);
         return categories.stream()
-                .map(category -> new CategoryResponseDTO(category.getId(),
-                        category.getCategoryName(), category.getCategoryDescription()))
+                .map(category -> new CategoryResponseDTO(category.getId(), category.getCategoryName(),
+                        category.getCategoryDescription(), category.isApproved()))
                 .collect(Collectors.toList());
     }
 
@@ -80,8 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean approveCategory(Long categoryId, boolean isApproved) throws ServiceException {
-
+    public boolean approveOrRejectCategory(Long categoryId, boolean isApproved) throws ServiceException {
         //make sure category request exists
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
 
@@ -91,7 +88,7 @@ public class CategoryServiceImpl implements CategoryService {
             category.setApproved(isApproved);
             categoryRepository.save(category);
             User user = category.getUser();
-            emailService.sendCategoryConfirmationEmail(user, category.getCategoryName(), true);
+            emailService.sendCategoryConfirmationEmail(user, category.getCategoryName(), isApproved);
             return true;
         }
         //if the category does not exist throw exception

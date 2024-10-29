@@ -24,14 +24,14 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> list(@RequestParam Optional<String> name,
                                      @RequestParam Optional<String> description) {
-        return ResponseEntity.ok(categoryService.list(name, description, false));
+        return ResponseEntity.ok(categoryService.list(name, description, Optional.of(true)));
     }
 
-    @GetMapping("admin")
+    @GetMapping("pending-approval")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<CategoryResponseDTO>> getAdminCategories(@RequestParam Optional<String> name,
+    public ResponseEntity<List<CategoryResponseDTO>> getPendingApproval(@RequestParam Optional<String> name,
                                                           @RequestParam Optional<String> description) {
-        return ResponseEntity.ok(categoryService.list(name, description, true));
+        return ResponseEntity.ok(categoryService.list(name, description, Optional.of(false)));
     }
 
     @PostMapping("create")
@@ -44,7 +44,7 @@ public class CategoryController {
     @PostMapping("{categoryId}/approve")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> approveCategory(@PathVariable Long categoryId) throws ServiceException {
-        boolean isApproved = categoryService.approveCategory(categoryId, true);
+        boolean isApproved = categoryService.approveOrRejectCategory(categoryId, true);
         if (isApproved) {
             return ResponseEntity.ok("Category approved successfully");
         } else {
@@ -55,7 +55,7 @@ public class CategoryController {
     @PostMapping("{categoryId}/reject")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> rejectCategory(@PathVariable Long categoryId) throws ServiceException {
-        boolean isApproved = categoryService.approveCategory(categoryId, false);
+        boolean isApproved = categoryService.approveOrRejectCategory(categoryId, false);
         if (isApproved) {
             return ResponseEntity.ok("Category rejected successfully");
         } else {

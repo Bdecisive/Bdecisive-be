@@ -23,8 +23,6 @@ public class Category {
     @Column(name = "category_description")
     private String categoryDescription;
 
-    @JsonManagedReference
-    @ToString.Exclude
     private boolean approved;
 
     @ManyToOne
