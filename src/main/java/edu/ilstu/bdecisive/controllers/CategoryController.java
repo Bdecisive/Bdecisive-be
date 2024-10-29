@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,22 +24,41 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> list(@RequestParam Optional<String> name,
                                      @RequestParam Optional<String> description) {
-        return ResponseEntity.ok(categoryService.list(name, description));
+        return ResponseEntity.ok(categoryService.list(name, description, false));
+    }
+
+    @GetMapping("admin")
+    public ResponseEntity<List<CategoryResponseDTO>> getAdminCategories(@RequestParam Optional<String> name,
+                                                          @RequestParam Optional<String> description) {
+        return ResponseEntity.ok(categoryService.list(name, description, true));
     }
 
     @PostMapping("create")
+    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<?> createCategoryRequest(@Valid @RequestBody CategoryRequestDTO requestDTO) throws ServiceException {
         categoryService.create(requestDTO);
         return ResponseEntity.ok("Category request created successfully");
     }
 
-    @PostMapping("approve")
-    public ResponseEntity<String> approveCategory(@RequestParam Long categoryId) throws ServiceException {
-        boolean isApproved = categoryService.approveCategory(categoryId);
+    @PostMapping("{categoryId}/approve")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> approveCategory(@PathVariable Long categoryId) throws ServiceException {
+        boolean isApproved = categoryService.approveCategory(categoryId, true);
         if (isApproved) {
             return ResponseEntity.ok("Category approved successfully");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category approval failed");
+        }
+    }
+
+    @PostMapping("{categoryId}/reject")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> rejectCategory(@PathVariable Long categoryId) throws ServiceException {
+        boolean isApproved = categoryService.approveCategory(categoryId, false);
+        if (isApproved) {
+            return ResponseEntity.ok("Category rejected successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category rejection failed");
         }
     }
 }

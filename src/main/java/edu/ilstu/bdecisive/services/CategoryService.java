@@ -11,10 +11,10 @@ import java.util.Optional;
 public interface CategoryService {
 
     void create(CategoryRequestDTO requestDTO) throws ServiceException;
-    boolean approveCategory(Long categoryId) throws ServiceException;
+    boolean approveCategory(Long categoryId, boolean isApproved) throws ServiceException;
     Optional<Category> findByCategoryName(String categoryName);
 
-    List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description);
+    List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, boolean isAdmin);
 }
 
 

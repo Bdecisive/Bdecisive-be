@@ -2,9 +2,12 @@ package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
+import edu.ilstu.bdecisive.mailing.EmailService;
 import edu.ilstu.bdecisive.models.Category;
+import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.repositories.CategoryRepository;
 import edu.ilstu.bdecisive.services.CategoryService;
+import edu.ilstu.bdecisive.services.UserService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -22,16 +25,25 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    UserService userService;
+
     @Override
     public Optional<Category> findByCategoryName(String categoryName) {
         return categoryRepository.findByCategoryName(categoryName);
     }
 
     @Override
-    public List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description) {
+    public List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, boolean isAdmin) {
         Category categoryExample = new Category();
         name.ifPresent(categoryExample::setCategoryName);
         description.ifPresent(categoryExample::setCategoryDescription);
+        if (!isAdmin) {
+            categoryExample.setApproved(true);
+        }
 
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) // Ensures partial matching
@@ -43,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> categories = categoryRepository.findAll(example);
         return categories.stream()
-                .map(category -> new CategoryResponseDTO(category.getCategoryID(),
+                .map(category -> new CategoryResponseDTO(category.getId(),
                         category.getCategoryName(), category.getCategoryDescription()))
                 .collect(Collectors.toList());
     }
@@ -58,14 +70,17 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ServiceException("Error: Category already exists", HttpStatus.BAD_REQUEST);
         }
 
+        User user = userService.getCurrentUser();
+
         //create new category
         Category category = new Category(requestDTO.getCategoryName(), requestDTO.getCategoryDescription());
         category.setApproved(false);
+        category.setUser(user);
         categoryRepository.save(category);
     }
 
     @Override
-    public boolean approveCategory(Long categoryId) throws ServiceException {
+    public boolean approveCategory(Long categoryId, boolean isApproved) throws ServiceException {
 
         //make sure category request exists
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
@@ -73,8 +88,10 @@ public class CategoryServiceImpl implements CategoryService {
         //if it exists approve the category
         if (optionalCategory.isPresent()) {
             Category category = optionalCategory.get();
-            category.setApproved(true);
+            category.setApproved(isApproved);
             categoryRepository.save(category);
+            User user = category.getUser();
+            emailService.sendCategoryConfirmationEmail(user, category.getCategoryName(), true);
             return true;
         }
         //if the category does not exist throw exception
