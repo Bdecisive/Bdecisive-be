@@ -26,7 +26,7 @@ public class Category {
     @ToString.Exclude
     private boolean isApproved;
 
-    public Category( String categoryName, String categoryDescription)
+    public Category(String categoryName, String categoryDescription)
     {
         this.categoryDescription = categoryDescription;
         this.categoryName = categoryName;
