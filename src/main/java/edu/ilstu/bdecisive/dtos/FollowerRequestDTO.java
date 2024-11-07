@@ -1,28 +1,17 @@
 package edu.ilstu.bdecisive.dtos;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class VendorRequestDTO {
-
+@Data
+public class FollowerRequestDTO {
     private int id;
 
     private String firstName;
 
     private String lastName;
-
-    private String address;
-
-    private String description;
-
-
-
 
     @NotBlank
     @Size(max = 70)

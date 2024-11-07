@@ -1,32 +1,41 @@
 package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
+import edu.ilstu.bdecisive.mailing.EmailService;
 import edu.ilstu.bdecisive.models.PasswordResetToken;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.repositories.PasswordResetTokenRepository;
 import edu.ilstu.bdecisive.repositories.RoleRepository;
 import edu.ilstu.bdecisive.repositories.UserRepository;
+import edu.ilstu.bdecisive.security.services.UserDetailsImpl;
 import edu.ilstu.bdecisive.services.UserService;
 import edu.ilstu.bdecisive.utils.ServiceException;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Value("${frontend.url}")
+    @Value("${base.url}")
     String frontendUrl;
 
     @Autowired
@@ -73,9 +82,6 @@ public class UserServiceImpl implements UserService {
                 user.getUserId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.isAccountNonLocked(),
-                user.isAccountNonExpired(),
-                user.isCredentialsNonExpired(),
                 user.isEnabled(),
                 user.getCredentialsExpiryDate(),
                 user.getAccountExpiryDate(),
@@ -88,9 +94,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        if (userOpt.isEmpty()) {
+            userOpt = findByEmail(username);
+        }
+        return userOpt;
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
     @Override
     public void updateAccountLockStatus(Long userId, boolean lock) throws ServiceException {
@@ -179,30 +194,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    @Override
     public User registerUser(User user, AppRole roleName, boolean isEnabled){
         if (user.getPassword() != null)
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setAccountNonLocked(true);
-        user.setAccountNonExpired(true);
-        user.setCredentialsNonExpired(true);
         user.setEnabled(isEnabled);
         user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
         user.setAccountExpiryDate(LocalDate.now().plusYears(1));
         user.setSignUpMethod("email");
+        user.setVerificationCode(emailService.generateVerificationCode());
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
         // Check if role already exists in the database
-        Role role = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
+        Role role = roleRepository.findByRoleName(roleName)
+                .orElseGet(() -> roleRepository.save(new Role(roleName)));
 
         user.setRole(role);
+
+        emailService.sendVerificationEmail(user);
         return userRepository.save(user);
     }
 
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Optional<User> user = userRepository.findById(userDetails.getId());
+            return user.orElseThrow(() -> new RuntimeException("User not found"));
+        }
+        return null;
+    }
     @Override
     public void updateUserProfile(Long userId, UserDTO userProfileDTO) throws ServiceException {
         try {

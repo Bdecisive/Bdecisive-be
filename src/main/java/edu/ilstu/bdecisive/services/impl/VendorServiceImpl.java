@@ -33,15 +33,7 @@ public class VendorServiceImpl implements VendorService {
 
     @Override
     public void create(VendorRequestDTO requestDTO) throws ServiceException {
-        Optional<User> userByUsername = userService.findByUsername(requestDTO.getUsername());
-        if (userByUsername.isPresent()) {
-            throw new ServiceException("Username is already taken!", HttpStatus.BAD_REQUEST);
-        }
-
-        Optional<User> userByEmail =  userService.findByEmail(requestDTO.getEmail());
-        if (userByEmail.isPresent()) {
-            throw new ServiceException("Email is already in use!", HttpStatus.BAD_REQUEST);
-        }
+        validateUser(requestDTO);
 
         // Create new user's account
         User user = new User(requestDTO.getUsername(), requestDTO.getEmail(), requestDTO.getPassword());
@@ -54,6 +46,18 @@ public class VendorServiceImpl implements VendorService {
         vendor.setApproved(false);
         vendor.setDescription(requestDTO.getDescription());
         vendorRepository.save(vendor);
+    }
+
+    private void validateUser(VendorRequestDTO requestDTO) throws ServiceException {
+        Optional<User> userByUsername = userService.findByUsername(requestDTO.getUsername());
+        if (userByUsername.isPresent()) {
+            throw new ServiceException("Username is already taken!", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<User> userByEmail =  userService.findByEmail(requestDTO.getEmail());
+        if (userByEmail.isPresent()) {
+            throw new ServiceException("Email is already in use!", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Override

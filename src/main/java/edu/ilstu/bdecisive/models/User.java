@@ -52,7 +52,14 @@ public class User{
     private boolean accountNonLocked = true;
     private boolean accountNonExpired = true;
     private boolean credentialsNonExpired = true;
-    private boolean enabled = true;
+
+    private boolean enabled = false;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
+    @Column(name = "verification_expiration")
+    private LocalDateTime verificationCodeExpiresAt;
 
     private LocalDate credentialsExpiryDate;
     private LocalDate accountExpiryDate;

@@ -9,9 +9,8 @@ import lombok.ToString;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "followers")
-public class Follower {
-
+@Table(name = "influencers")
+public class Influencer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -22,4 +21,15 @@ public class Follower {
     @JsonManagedReference
     @ToString.Exclude
     private User user;
+
+    private String address;
+
+    private String description;
+
+    public Influencer(User user, String address, String description) {
+        this.user = user;
+        this.address = address;
+        this.description = description;
+    }
+
 }
