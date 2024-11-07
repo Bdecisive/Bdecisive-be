@@ -35,6 +35,12 @@ public class User{
     @Column(name = "email")
     private String email;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
     private String firstName;
     private String lastName;
 

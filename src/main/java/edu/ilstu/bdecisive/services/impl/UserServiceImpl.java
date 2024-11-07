@@ -114,6 +114,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+
     @Override
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
@@ -226,4 +227,33 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+    @Override
+    public void updateUserProfile(Long userId, UserDTO userProfileDTO) throws ServiceException {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ServiceException("Cannot Find the user.", HttpStatus.NOT_FOUND));
+
+            if (userProfileDTO.getUserName() != null) {
+                user.setFirstName(userProfileDTO.getUserName());
+            }
+            if (userProfileDTO.getEmail() != null){
+                user.setEmail(userProfileDTO.getEmail());
+            }
+            if (userProfileDTO.getPhoneNumber() != null) {
+                user.setPhoneNumber(userProfileDTO.getPhoneNumber());
+            }
+            if (userProfileDTO.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(userProfileDTO.getPassword()));
+            }
+            if (userProfileDTO.getProfilePictureUrl() != null) {
+                user.setProfilePictureUrl(userProfileDTO.getProfilePictureUrl());
+            }
+
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new ServiceException("Fail to update user profile.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }

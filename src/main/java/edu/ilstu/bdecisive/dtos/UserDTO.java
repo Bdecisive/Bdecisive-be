@@ -22,4 +22,7 @@ public class UserDTO {
     private Role role;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+    private String phoneNumber;
+    private String password;
+    private String profilePictureUrl;
 }

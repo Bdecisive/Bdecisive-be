@@ -40,6 +40,8 @@ public interface UserService {
 
     User registerUser(User user, AppRole roleName, boolean isEnabled);
 
+    void updateUserProfile(Long userId, UserDTO userProfileDTO) throws ServiceException;
+
     void save(User user);
 
     User getCurrentUser();
