@@ -98,4 +98,20 @@ public class CategoryServiceImpl implements CategoryService {
                     HttpStatus.NOT_FOUND);
         }
     }
-}
+
+    @Override
+    public Category updateCategory(Long categoryId, Category updatedCategory) throws ServiceException {
+        return categoryRepository.findById(categoryId).map(category -> {
+                    category.setCategoryName(updatedCategory.getCategoryName());
+                    category.setCategoryDescription(updatedCategory.getCategoryDescription());
+                    return categoryRepository.save(category);
+                })
+                .orElseThrow(() -> new ServiceException(
+                        String.format("Category doesn't exist for id: %d", categoryId),
+                        HttpStatus.NOT_FOUND));
+    }
+    }
+
+
+
+

@@ -5,14 +5,17 @@ import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.services.CategoryService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import jakarta.validation.Valid;
+import edu.ilstu.bdecisive.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/categories/")
@@ -62,4 +65,11 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category rejection failed");
         }
     }
+
+    @PutMapping("{categoryId}")
+    public Category updateCategory(@PathVariable Long categoryId, @RequestBody Category updatedCategory) throws ServiceException {
+        return categoryService.updateCategory(categoryId, updatedCategory);
+    }
 }
+
+

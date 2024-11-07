@@ -12,8 +12,9 @@ public interface CategoryService {
 
     void create(CategoryRequestDTO requestDTO) throws ServiceException;
     boolean approveOrRejectCategory(Long categoryId, boolean isApproved) throws ServiceException;
-    Optional<Category> findByCategoryName(String categoryName);
+    Optional<Category> findByCategoryName(String categoryName) ;
 
+    public Category updateCategory(Long id, Category updatedCategory) throws ServiceException ;
     List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved);
 }
 
