@@ -1,10 +1,12 @@
 package edu.ilstu.bdecisive.services;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
 import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.utils.ServiceException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
