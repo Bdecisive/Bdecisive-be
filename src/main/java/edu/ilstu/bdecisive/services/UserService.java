@@ -1,6 +1,7 @@
 package edu.ilstu.bdecisive.services;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.dtos.UserResponseDTO;
 import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.models.Role;
@@ -45,4 +46,6 @@ public interface UserService {
     void save(User user);
 
     User getCurrentUser();
+
+    UserResponseDTO getUserProfile() throws ServiceException;
 }

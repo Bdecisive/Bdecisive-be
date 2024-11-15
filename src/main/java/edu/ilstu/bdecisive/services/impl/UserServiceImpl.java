@@ -1,6 +1,7 @@
 package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.UserDTO;
+import edu.ilstu.bdecisive.dtos.UserResponseDTO;
 import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.mailing.EmailService;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -77,18 +79,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDTO convertToDto(User user) {
-        return new UserDTO(
-                user.getUserId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.isEnabled(),
-                user.getCredentialsExpiryDate(),
-                user.getAccountExpiryDate(),
-                user.getSignUpMethod(),
-                user.getRole(),
-                user.getCreatedDate(),
-                user.getUpdatedDate()
-        );
+        UserDTO result = new UserDTO();
+        result.setUserId(user.getUserId());
+        result.setEmail(user.getEmail());
+        result.setUserName(user.getUsername());
+        result.setEnabled(user.isEnabled());
+        result.setRole(user.getRole());
+        result.setCreatedDate(user.getCreatedDate());
+        result.setUpdatedDate(user.getUpdatedDate());
+        return result;
     }
 
     @Override
@@ -227,6 +226,25 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public UserResponseDTO getUserProfile() throws ServiceException {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new ServiceException("Cannot find the user.", HttpStatus.NOT_FOUND);
+        }
+        Role role = user.getRole();
+        return new UserResponseDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.isEnabled(),
+                user.getCredentialsExpiryDate(),
+                user.getAccountExpiryDate(),
+                role.getRoleName().name()
+        );
+    }
+
     @Override
     public void updateUserProfile(Long userId, UserDTO userProfileDTO) throws ServiceException {
         try {
