@@ -8,7 +8,7 @@ import edu.ilstu.bdecisive.utils.ServiceException;
 public interface AuthService {
     LoginResponse authenticateUser(LoginRequest loginRequest) throws ServiceException;
     void verifyUser(VerifyUserDTO input) throws ServiceException;
-    void resendVerificationCode(String email) throws ServiceException;
+    void resendVerificationCode(String username) throws ServiceException;
     void forgotPassword(String email) throws ServiceException;
     void resetPassword(String token, String newPassword) throws ServiceException;
 }

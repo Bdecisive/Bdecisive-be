@@ -87,8 +87,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void resendVerificationCode(String email) throws ServiceException {
-        Optional<User> optionalUser = userService.findByEmail(email);
+    public void resendVerificationCode(String username) throws ServiceException {
+        Optional<User> optionalUser = userService.findByUsername(username);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isEnabled()) {
