@@ -37,6 +37,8 @@ public class VendorServiceImpl implements VendorService {
 
         // Create new user's account
         User user = new User(requestDTO.getUsername(), requestDTO.getEmail(), requestDTO.getPassword());
+        user.setFirstName(requestDTO.getFirstName());
+        user.setLastName(requestDTO.getLastName());
         user = userService.registerUser(user, AppRole.ROLE_VENDOR, false);
 
         // Create vendor account

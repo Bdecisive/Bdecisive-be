@@ -1,6 +1,5 @@
 package edu.ilstu.bdecisive.dtos;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,9 +19,6 @@ public class VendorRequestDTO {
     private String address;
 
     private String description;
-
-
-
 
     @NotBlank
     @Size(max = 70)
