@@ -88,6 +88,7 @@ public class UserServiceImpl implements UserService {
                 user.getRole(),
                 user.getCreatedDate(),
                 user.getUpdatedDate()
+
         );
     }
 
@@ -239,15 +240,15 @@ public class UserServiceImpl implements UserService {
             if (userProfileDTO.getEmail() != null){
                 user.setEmail(userProfileDTO.getEmail());
             }
-            if (userProfileDTO.getPhoneNumber() != null) {
-                user.setPhoneNumber(userProfileDTO.getPhoneNumber());
-            }
-            if (userProfileDTO.getPassword() != null) {
-                user.setPassword(passwordEncoder.encode(userProfileDTO.getPassword()));
-            }
-            if (userProfileDTO.getProfilePictureUrl() != null) {
-                user.setProfilePictureUrl(userProfileDTO.getProfilePictureUrl());
-            }
+//            if (userProfileDTO.getPhoneNumber() != null) {
+//                user.setPhoneNumber(userProfileDTO.getPhoneNumber());
+//            }
+//            if (userProfileDTO.getPassword() != null) {
+//                user.setPassword(passwordEncoder.encode(userProfileDTO.getPassword()));
+//            }
+//            if (userProfileDTO.getProfilePictureUrl() != null) {
+//                user.setProfilePictureUrl(userProfileDTO.getProfilePictureUrl());
+//            }
 
             userRepository.save(user);
         } catch (Exception e) {
