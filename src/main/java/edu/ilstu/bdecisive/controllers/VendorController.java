@@ -10,11 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -37,8 +38,8 @@ public class VendorController {
         return ResponseEntity.ok("Vendor request created successfully");
     }
 
-    @PostMapping("approve")
-    public ResponseEntity<String> approveVendorAccount(@RequestParam Long vendorId) throws ServiceException {
+    @PatchMapping("/{vendorId}/approve")
+    public ResponseEntity<String> approveVendorAccount(@PathVariable Long vendorId) throws ServiceException {
         boolean isApproved = vendorService.approveVendorAccount(vendorId);
         if (isApproved) {
             return ResponseEntity.ok("Vendor account approved successfully");
@@ -47,4 +48,13 @@ public class VendorController {
         }
     }
 
+    @PatchMapping("/{vendorId}/reject")
+    public ResponseEntity<String> rejectVendorAccount(@PathVariable Long vendorId) throws ServiceException {
+        boolean isApproved = vendorService.rejectVendorAccount(vendorId);
+        if (isApproved) {
+            return ResponseEntity.ok("Vendor account approved successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vendor approval failed");
+        }
+    }
 }

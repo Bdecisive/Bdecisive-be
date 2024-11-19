@@ -9,7 +9,8 @@ import java.util.List;
 
 public interface VendorService {
     void create(VendorRequestDTO requestDTO) throws ServiceException;
-    boolean approveVendorAccount(Long vendorId) throws ServiceException;
     boolean isApproved(User user);
     List<VendorDTO> list();
+    boolean approveVendorAccount(Long vendorId) throws ServiceException;
+    boolean rejectVendorAccount(Long vendorId) throws ServiceException;
 }

@@ -8,4 +8,5 @@ public interface EmailService {
     void sendVerificationEmail(User user);
     void sendCategoryConfirmationEmail(User user, String categoryName, boolean isApproved);
     String generateVerificationCode();
+    void sendVendorStatusEmail(User user, String companyName, boolean isApproved);
 }

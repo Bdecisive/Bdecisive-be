@@ -3,6 +3,7 @@ package edu.ilstu.bdecisive.services.impl;
 import edu.ilstu.bdecisive.dtos.VendorDTO;
 import edu.ilstu.bdecisive.dtos.VendorRequestDTO;
 import edu.ilstu.bdecisive.enums.AppRole;
+import edu.ilstu.bdecisive.mailing.EmailService;
 import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.models.Vendor;
 import edu.ilstu.bdecisive.repositories.VendorRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +27,9 @@ public class VendorServiceImpl implements VendorService {
 
     @Autowired
     private VendorRepository vendorRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public void create(VendorRequestDTO requestDTO) throws ServiceException {
@@ -61,11 +66,24 @@ public class VendorServiceImpl implements VendorService {
 
     @Override
     public boolean approveVendorAccount(Long vendorId) throws ServiceException {
+        return updateVendorApproval(vendorId, true);
+    }
+
+    @Override
+    public boolean rejectVendorAccount(Long vendorId) throws ServiceException {
+        return updateVendorApproval(vendorId, false);
+    }
+
+    private boolean updateVendorApproval(Long vendorId, boolean approved) throws ServiceException {
         Optional<Vendor> optionalVendor = vendorRepository.findById(vendorId);
         if (optionalVendor.isPresent()) {
             Vendor vendor = optionalVendor.get();
-            vendor.setApproved(true);
+            vendor.setApproved(approved);
+            vendor.setApprovedDate(LocalDateTime.now());
             vendorRepository.save(vendor);
+
+            User user = vendor.getUser();
+            emailService.sendVendorStatusEmail(user, vendor.getCompanyName(), approved);
             return true;
         } else {
             throw new ServiceException(
