@@ -25,4 +25,7 @@ public class UserDTO {
     private String phoneNumber;
     private String password;
     private String profilePictureUrl;
+
+    public UserDTO(Long userId, String username, String email, boolean enabled, LocalDate credentialsExpiryDate, LocalDate accountExpiryDate, String signUpMethod, Role role, LocalDateTime createdDate, LocalDateTime updatedDate) {
+    }
 }
