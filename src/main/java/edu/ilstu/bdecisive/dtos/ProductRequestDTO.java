@@ -1,5 +1,6 @@
 package edu.ilstu.bdecisive.dtos;
 
+import edu.ilstu.bdecisive.models.Category;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -15,4 +16,6 @@ public class ProductRequestDTO {
     private String productDescription;
 
     private Double productPrice;
+
+    private Category c;
 }
