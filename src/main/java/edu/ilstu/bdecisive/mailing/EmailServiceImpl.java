@@ -86,6 +86,57 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    public void sendVendorStatusEmail(User user, String companyName, boolean isApproved) {
+        String subject = isApproved ? "Your Vendor Application Has Been Approved!"
+                : "Update on Your Vendor Application";
+
+        String approvedMsg = "<html>"
+                + "<body style=\"font-family: Arial, sans-serif;\">"
+                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
+                + "<h2 style=\"color: #4CAF50; margin-bottom: 20px;\">Congratulations!</h2>"
+                + "<p style=\"font-size: 16px;\">We are pleased to inform you that your vendor application for <strong>"+ companyName +"</strong> has been approved!</p>"
+                + "<p style=\"font-size: 16px;\">You now have full access to our vendor portal where you can:</p>"
+                + "<ul style=\"font-size: 16px;\">"
+                + "<li>Manage your company profile</li>"
+                + "<li>List your products and services</li>"
+                + "<li>Interact with potential customers</li>"
+                + "<li>Access vendor-specific features</li>"
+                + "</ul>"
+                + "<p style=\"font-size: 16px;\">To get started, simply log in to your account using your credentials.</p>"
+                + "<p style=\"font-size: 16px; margin-top: 20px;\">If you have any questions or need assistance, our support team is here to help.</p>"
+                + "<p style=\"font-size: 14px; color: #666; margin-top: 30px;\">Best regards,<br>The BDecisive Team</p>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+
+        String rejectionMsg = "<html>"
+                + "<body style=\"font-family: Arial, sans-serif;\">"
+                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
+                + "<h2 style=\"color: #666; margin-bottom: 20px;\">Application Status Update</h2>"
+                + "<p style=\"font-size: 16px;\">Thank you for your interest in becoming a vendor on our platform. We have carefully reviewed your application for <strong>"+ companyName +"</strong>.</p>"
+                + "<p style=\"font-size: 16px;\">After thorough consideration, we regret to inform you that your application does not meet our current vendor requirements.</p>"
+                + "<p style=\"font-size: 16px;\">Common reasons for application rejection include:</p>"
+                + "<ul style=\"font-size: 16px;\">"
+                + "<li>Incomplete company information</li>"
+                + "<li>Insufficient business documentation</li>"
+                + "<li>Misalignment with platform requirements</li>"
+                + "</ul>"
+                + "<p style=\"font-size: 16px;\">You are welcome to submit a new application after addressing any potential issues. If you would like specific feedback about your application, please contact our support team.</p>"
+                + "<p style=\"font-size: 16px; margin-top: 20px;\">We appreciate your interest in our platform and wish you the best in your business endeavors.</p>"
+                + "<p style=\"font-size: 14px; color: #666; margin-top: 30px;\">Best regards,<br>The BDecisive Team</p>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+
+        String msg = isApproved ? approvedMsg : rejectionMsg;
+        try {
+            sendVerificationEmail(user.getEmail(), subject, msg);
+        } catch (MessagingException e) {
+            // Handle email sending exception
+            e.printStackTrace();
+        }
+    }
+
     public String generateVerificationCode() {
         Random random = new Random();
         int code = random.nextInt(900000) + 100000;

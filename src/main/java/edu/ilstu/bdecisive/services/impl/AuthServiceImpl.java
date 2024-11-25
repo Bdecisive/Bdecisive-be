@@ -1,14 +1,17 @@
 package edu.ilstu.bdecisive.services.impl;
 
 import edu.ilstu.bdecisive.dtos.VerifyUserDTO;
+import edu.ilstu.bdecisive.enums.AppRole;
 import edu.ilstu.bdecisive.mailing.EmailService;
 import edu.ilstu.bdecisive.models.User;
+import edu.ilstu.bdecisive.models.Vendor;
 import edu.ilstu.bdecisive.security.jwt.JwtUtils;
 import edu.ilstu.bdecisive.security.request.LoginRequest;
 import edu.ilstu.bdecisive.security.response.LoginResponse;
 import edu.ilstu.bdecisive.security.services.UserDetailsImpl;
 import edu.ilstu.bdecisive.services.AuthService;
 import edu.ilstu.bdecisive.services.UserService;
+import edu.ilstu.bdecisive.services.VendorService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    VendorService vendorService;
+
     @Override
     public LoginResponse authenticateUser(LoginRequest loginRequest) throws ServiceException {
         validateUserVerification(loginRequest);
@@ -49,6 +55,19 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Optional<User> userOpt = userService.findByUsername(userDetails.getUsername());
+        if (!userOpt.isPresent()) {
+            throw new ServiceException("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        // Check if vendor account has been verified by admin
+        User user = userOpt.get();
+        if (user.getRole().getRoleName().equals(AppRole.ROLE_VENDOR)) {
+            boolean isVendorApproved = vendorService.isApproved(user);
+            if (!isVendorApproved) {
+                throw new ServiceException("Vendor has not approved yet! Please wait for the admin to review and approve your account.", HttpStatus.NOT_FOUND);
+            }
+        }
 
         // Set the authentication
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -87,8 +106,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void resendVerificationCode(String email) throws ServiceException {
-        Optional<User> optionalUser = userService.findByEmail(email);
+    public void resendVerificationCode(String username) throws ServiceException {
+        Optional<User> optionalUser = userService.findByUsername(username);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isEnabled()) {
