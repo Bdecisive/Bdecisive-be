@@ -19,6 +19,8 @@ public interface UserService {
 
     UserDTO getUserById(Long id);
 
+    User findUserById(Long id);
+
     Optional<User> findByUsername(String username);
 
     void updateAccountLockStatus(Long userId, boolean lock) throws ServiceException;

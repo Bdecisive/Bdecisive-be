@@ -74,6 +74,30 @@ public class VendorServiceImpl implements VendorService {
         return updateVendorApproval(vendorId, false);
     }
 
+    @Override
+    public VendorDTO getVendorByUserId(Long userId) {
+        User user = userService.findUserById(userId);
+        Vendor vendor = vendorRepository.findByUser(user).orElse(null);
+
+        VendorDTO vendorDto = new VendorDTO();
+        vendorDto.setId(vendor.getId());
+        vendorDto.setCompanyName(vendor.getCompanyName());
+        vendorDto.setAddress(vendor.getAddress());
+        vendorDto.setDescription(vendor.getDescription());
+        vendorDto.setApproved(vendor.isApproved());
+        if (vendor.getApprovedDate() != null) {
+            vendorDto.setApprovedDate(vendor.getApprovedDate().toString());
+        }
+        vendorDto.setCreatedAt(vendor.getCreatedAt().toString());
+        vendorDto.setPhone(vendor.getPhone());
+
+        vendorDto.setFirstName(user.getFirstName());
+        vendorDto.setLastName(user.getLastName());
+        vendorDto.setEmail(user.getEmail());
+        vendorDto.setUsername(user.getUsername());
+        return vendorDto;
+    }
+
     private boolean updateVendorApproval(Long vendorId, boolean approved) throws ServiceException {
         Optional<Vendor> optionalVendor = vendorRepository.findById(vendorId);
         if (optionalVendor.isPresent()) {

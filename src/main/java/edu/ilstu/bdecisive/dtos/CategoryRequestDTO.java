@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CategoryRequestDTO {
 
-    private Long categoryID;
+    private Long id;
 
     @NotEmpty
-    private String categoryName;
+    private String name;
 
     @NotEmpty
-    private String categoryDescription;
+    private String description;
 }

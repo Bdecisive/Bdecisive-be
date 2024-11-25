@@ -14,7 +14,9 @@ public interface CategoryService {
     boolean approveOrRejectCategory(Long categoryId, boolean isApproved) throws ServiceException;
     Optional<Category> findByCategoryName(String categoryName);
 
-    List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved);
+    List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved) throws ServiceException;
+    List<CategoryResponseDTO> vendorCategoryList();
+
 }
 
 

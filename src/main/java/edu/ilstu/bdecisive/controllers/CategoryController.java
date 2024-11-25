@@ -23,25 +23,24 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> list(@RequestParam Optional<String> name,
-                                     @RequestParam Optional<String> description) {
+                                     @RequestParam Optional<String> description) throws ServiceException {
         return ResponseEntity.ok(categoryService.list(name, description, Optional.of(true)));
     }
 
-    @GetMapping("pending-approval")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<CategoryResponseDTO>> getPendingApproval(@RequestParam Optional<String> name,
-                                                          @RequestParam Optional<String> description) {
-        return ResponseEntity.ok(categoryService.list(name, description, Optional.of(false)));
+    @GetMapping("vendor-list")
+    @PreAuthorize("hasRole('ROLE_VENDOR')")
+    public ResponseEntity<List<CategoryResponseDTO>> getPendingApproval() {
+        return ResponseEntity.ok(categoryService.vendorCategoryList());
     }
 
     @PostMapping("create")
-    @PreAuthorize("hasRole('ROLE_VENDOR')")
+    @PreAuthorize("hasRole('ROLE_VENDOR') || hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createCategoryRequest(@Valid @RequestBody CategoryRequestDTO requestDTO) throws ServiceException {
         categoryService.create(requestDTO);
         return ResponseEntity.ok("Category request created successfully");
     }
 
-    @PostMapping("{categoryId}/approve")
+    @PatchMapping("{categoryId}/approve")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> approveCategory(@PathVariable Long categoryId) throws ServiceException {
         boolean isApproved = categoryService.approveOrRejectCategory(categoryId, true);
@@ -52,7 +51,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("{categoryId}/reject")
+    @PatchMapping("{categoryId}/reject")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> rejectCategory(@PathVariable Long categoryId) throws ServiceException {
         boolean isApproved = categoryService.approveOrRejectCategory(categoryId, false);

@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 public class CategoryResponseDTO {
     private Long id;
     private String name;
+    private String vendorName;
+    private String companyName;
     private String description;
     private boolean approved;
+    private String approvedDate;
+    private String createdAt;
 }
