@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -29,6 +32,17 @@ public class Product {
 
     @Column(name="productPrice")
     private double productPrice;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @Column(name="ProductReview")
+    private List<Review> reviews = new ArrayList<>();
+
+     @ManyToOne
+     @JoinColumn(name = "category_id", nullable = false)
+     private Category category;
+
+
 
 
 }
