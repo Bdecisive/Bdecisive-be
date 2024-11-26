@@ -1,5 +1,6 @@
 package edu.ilstu.bdecisive.services.impl;
 
+import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.dtos.VendorDTO;
@@ -29,10 +30,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     EmailService emailService;
+
     @Autowired
     UserService userService;
+
     @Autowired
     VendorService vendorService;
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -79,6 +83,20 @@ public class CategoryServiceImpl implements CategoryService {
         User currentUser = userService.getCurrentUser();
         List<Category> categories = categoryRepository.findByUser(currentUser);
         return getCategoryResponseDTOS(categories);
+    }
+
+    @Override
+    public List<GlobalCategoryDTO> listGlobalCategory() {
+        // Fetch matching categories
+        List<Category> categories = categoryRepository.findByApproved(true);
+
+        return categories.stream().map(category ->
+                new GlobalCategoryDTO(category.getId(), category.getName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public Category findCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElse(null);
     }
 
     private List<CategoryResponseDTO> getCategoryResponseDTOS(List<Category> categories) {

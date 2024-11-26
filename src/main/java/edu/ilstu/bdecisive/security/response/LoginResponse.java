@@ -9,12 +9,8 @@ import java.util.List;
 @Getter
 public class LoginResponse {
     private String token;
-//    private String username;
-//    private List<String> roles;
 
     public LoginResponse(String token) {
-//        this.username = username;
-//        this.roles = roles;
         this.token = token;
     }
 

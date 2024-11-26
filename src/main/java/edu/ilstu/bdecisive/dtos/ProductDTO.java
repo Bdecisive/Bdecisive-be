@@ -1,13 +1,14 @@
 package edu.ilstu.bdecisive.dtos;
 
 import edu.ilstu.bdecisive.models.Category;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductRequestDTO {
+public class ProductDTO {
 
     private Long id;
 
@@ -17,7 +18,9 @@ public class ProductRequestDTO {
 
     private Double price;
 
-    private Long categoryId;
+    private GlobalCategoryDTO category;
 
-    private Long userId;
+    private String createdAt;
+
+    private String updatedAt;
 }

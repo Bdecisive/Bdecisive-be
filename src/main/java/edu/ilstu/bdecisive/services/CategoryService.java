@@ -1,5 +1,6 @@
 package edu.ilstu.bdecisive.services;
 
+import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.models.Category;
@@ -17,6 +18,9 @@ public interface CategoryService {
     List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved) throws ServiceException;
     List<CategoryResponseDTO> vendorCategoryList();
 
+    List<GlobalCategoryDTO> listGlobalCategory();
+
+    Category findCategoryById(Long categoryId);
 }
 
 

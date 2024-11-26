@@ -1,5 +1,6 @@
 package edu.ilstu.bdecisive.controllers;
 
+import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.services.CategoryService;
@@ -22,9 +23,15 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_VENDOR') || hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<CategoryResponseDTO>> list(@RequestParam Optional<String> name,
                                      @RequestParam Optional<String> description) throws ServiceException {
         return ResponseEntity.ok(categoryService.list(name, description, Optional.of(true)));
+    }
+
+    @GetMapping("global")
+    public ResponseEntity<List<GlobalCategoryDTO>> listGlobalCategory() {
+        return ResponseEntity.ok(categoryService.listGlobalCategory());
     }
 
     @GetMapping("vendor-list")

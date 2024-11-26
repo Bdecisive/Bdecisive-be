@@ -43,8 +43,10 @@ public class JwtUtils {
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));
         String name = userDetails.getFirstName() + " " + userDetails.getLastName();
+        long id = userDetails.getId();
         return Jwts.builder()
                 .subject(username)
+                .claim("id", id)
                 .claim("roles", roles)
                 .claim("name", name)
                 .claim("email", userDetails.getEmail())
