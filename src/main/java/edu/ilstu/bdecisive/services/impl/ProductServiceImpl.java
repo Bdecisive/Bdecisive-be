@@ -51,38 +51,11 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    @Override
-    public ProductRequestDTO getProductById(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-
-        if(product.isPresent()) {
-            Product p = product.get();
-            return new ProductRequestDTO(p.getId(),
-                    p.getName(),
-                    p.getDescription(),
-                    p.getPrice(),
-                    p.getCategory().getId(),
-                    null);
-        }
-        else{
-            return null;
-        }
-    }
-    public Optional<Product> findByProductName(String productName){
-        return productRepository.findByName(productName);
-    }
-    public Optional<Product> findByProductId(Long id){
-
-        return productRepository.findById(id);
-    }
-
-
     public void productReview(ProductReviewDTO requestDTO)throws ServiceException{
         Long productId = requestDTO.getID();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ServiceException("Product not found", HttpStatus.NOT_FOUND));
         Review review=new Review(requestDTO.getReviewid(),requestDTO.getProductName(),requestDTO.getPros(),requestDTO.getCons(), requestDTO.getPersonalExperince(), requestDTO.getRating(),product);
-//        product.getReviews().add(review);
         productRepository.save(product);
         ReviewRepository.save(review);
     }
@@ -105,34 +78,51 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getProductsByVendor(long userId) {
-        User user = userService.findUserById(userId);
-        List<Product> products = productRepository.findByUser(user);
-        List<ProductDTO> productDTOS = new ArrayList<>();
-        for (Product product : products) {
-            ProductDTO productDTO = new ProductDTO();
-            productDTO.setId(product.getId());
-            productDTO.setName(product.getName());
-            productDTO.setDescription(product.getDescription());
-            productDTO.setPrice(product.getPrice());
-
-            GlobalCategoryDTO categoryDTO = new GlobalCategoryDTO();
-            categoryDTO.setId(product.getCategory().getId());
-            categoryDTO.setName(product.getCategory().getName());
-            productDTO.setCategory(categoryDTO);
-            productDTO.setCreatedAt(String.valueOf(product.getCreatedAt()));
-            productDTO.setUpdatedAt(String.valueOf(product.getUpdatedAt()));
-            productDTOS.add(productDTO);
-        }
-        return productDTOS;
-    }
-
-    @Override
     public void delete(Long productId) throws ServiceException {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new ServiceException("Product not found", HttpStatus.NOT_FOUND));
         reviewService.deleteByProduct(product);
         productRepository.delete(product);
+    }
+
+    @Override
+    public List<ProductDTO> getProductsByVendor(long userId) {
+        User user = userService.findUserById(userId);
+        List<Product> products = productRepository.findByUser(user);
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        for (Product product : products) {
+            ProductDTO productDTO = convertToProductDto(product);
+            productDTOS.add(productDTO);
+        }
+        return productDTOS;
+    }
+
+    private static ProductDTO convertToProductDto(Product product) {
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setPrice(product.getPrice());
+
+        GlobalCategoryDTO categoryDTO = new GlobalCategoryDTO();
+        categoryDTO.setId(product.getCategory().getId());
+        categoryDTO.setName(product.getCategory().getName());
+        productDTO.setCategory(categoryDTO);
+        productDTO.setCreatedAt(String.valueOf(product.getCreatedAt()));
+        productDTO.setUpdatedAt(String.valueOf(product.getUpdatedAt()));
+        return productDTO;
+    }
+
+    @Override
+    public List<ProductDTO> getProductsByCategory(long categoryId) {
+        Category category = categoryService.findCategoryById(categoryId);
+        List<Product> products = productRepository.findByCategory(category);
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        for (Product product : products) {
+            ProductDTO productDTO = convertToProductDto(product);
+            productDTOS.add(productDTO);
+        }
+        return productDTOS;
     }
 
 }
