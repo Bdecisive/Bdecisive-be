@@ -19,7 +19,7 @@ public interface UserService {
 
     UserDTO getUserById(Long id);
 
-    User findUserById(Long id);
+    User findUserById(Long id) throws ServiceException;
 
     Optional<User> findByUsername(String username);
 

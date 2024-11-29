@@ -1,6 +1,5 @@
 package edu.ilstu.bdecisive.dtos;
 
-import edu.ilstu.bdecisive.models.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,7 @@ public class ProductDTO {
 
     private Double price;
 
-    private GlobalCategoryDTO category;
+    private CategoryDTO category;
 
     private String createdAt;
 

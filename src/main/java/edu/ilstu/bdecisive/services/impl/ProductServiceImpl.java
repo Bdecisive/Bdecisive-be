@@ -1,12 +1,10 @@
 package edu.ilstu.bdecisive.services.impl;
 
-import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
+import edu.ilstu.bdecisive.dtos.CategoryDTO;
 import edu.ilstu.bdecisive.dtos.ProductDTO;
 import edu.ilstu.bdecisive.dtos.ProductRequestDTO;
-import edu.ilstu.bdecisive.dtos.ProductReviewDTO;
 import edu.ilstu.bdecisive.models.Category;
 import edu.ilstu.bdecisive.models.Product;
-import edu.ilstu.bdecisive.models.Review;
 import edu.ilstu.bdecisive.models.User;
 import edu.ilstu.bdecisive.repositories.ProductRepository;
 import edu.ilstu.bdecisive.repositories.ReviewRepository;
@@ -30,9 +28,6 @@ public class ProductServiceImpl implements ProductService {
     ProductRepository productRepository;
 
     @Autowired
-    ReviewRepository ReviewRepository;
-
-    @Autowired
     ReviewService reviewService;
 
     @Autowired
@@ -43,21 +38,13 @@ public class ProductServiceImpl implements ProductService {
 
     public void create(ProductRequestDTO requestDTO) throws ServiceException {
         User user = userService.findUserById(requestDTO.getUserId());
-        Category category = categoryService.findCategoryById(requestDTO.getCategoryId());
+        Category category = categoryService.findById(requestDTO.getCategoryId());
+
         Product product = new Product(requestDTO.getId(),
                 requestDTO.getName(),
                 requestDTO.getDescription(),
                 requestDTO.getPrice(), category, user);
         productRepository.save(product);
-    }
-
-    public void productReview(ProductReviewDTO requestDTO)throws ServiceException{
-        Long productId = requestDTO.getID();
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ServiceException("Product not found", HttpStatus.NOT_FOUND));
-        Review review=new Review(requestDTO.getReviewid(),requestDTO.getProductName(),requestDTO.getPros(),requestDTO.getCons(), requestDTO.getPersonalExperince(), requestDTO.getRating(),product);
-        productRepository.save(product);
-        ReviewRepository.save(review);
     }
 
     public void productUpdate(Long productId, ProductRequestDTO requestDTO)throws ServiceException{
@@ -86,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getProductsByVendor(long userId) {
+    public List<ProductDTO> getProductsByVendor(long userId) throws ServiceException {
         User user = userService.findUserById(userId);
         List<Product> products = productRepository.findByUser(user);
         List<ProductDTO> productDTOS = new ArrayList<>();
@@ -104,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
         productDTO.setDescription(product.getDescription());
         productDTO.setPrice(product.getPrice());
 
-        GlobalCategoryDTO categoryDTO = new GlobalCategoryDTO();
+        CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setId(product.getCategory().getId());
         categoryDTO.setName(product.getCategory().getName());
         productDTO.setCategory(categoryDTO);
@@ -114,8 +101,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getProductsByCategory(long categoryId) {
-        Category category = categoryService.findCategoryById(categoryId);
+    public List<ProductDTO> getProductsByCategory(long categoryId) throws ServiceException {
+        Category category = categoryService.findById(categoryId);
         List<Product> products = productRepository.findByCategory(category);
         List<ProductDTO> productDTOS = new ArrayList<>();
         for (Product product : products) {
@@ -123,6 +110,15 @@ public class ProductServiceImpl implements ProductService {
             productDTOS.add(productDTO);
         }
         return productDTOS;
+    }
+
+    @Override
+    public Product findById(Long productId) throws ServiceException {
+        Optional<Product> productOpt = productRepository.findById(productId);
+        if (productOpt.isEmpty()) {
+            throw new ServiceException("Product not found", HttpStatus.NOT_FOUND);
+        }
+        return productOpt.get();
     }
 
 }

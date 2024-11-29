@@ -19,13 +19,13 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("{userId}/vendor")
-    public List<ProductDTO> getProductsByVendor(@PathVariable long userId) {
+    @GetMapping("vendor/{userId}")
+    public List<ProductDTO> getProductsByVendor(@PathVariable long userId) throws ServiceException {
         return productService.getProductsByVendor(userId);
     }
 
-    @GetMapping("{categoryId}/category")
-    public List<ProductDTO> getProductsByCategory(@PathVariable long categoryId) {
+    @GetMapping("category/{categoryId}")
+    public List<ProductDTO> getProductsByCategory(@PathVariable long categoryId) throws ServiceException {
         return productService.getProductsByCategory(categoryId);
     }
 

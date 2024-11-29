@@ -79,8 +79,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserById(Long id) {
-        return userRepository.findById(id).orElseThrow();
+    public User findUserById(Long id) throws ServiceException {
+        return userRepository.findById(id).orElseThrow(()
+                -> new ServiceException("User not found", HttpStatus.NOT_FOUND));
     }
 
     private UserDTO convertToDto(User user) {

@@ -12,23 +12,32 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="productreviews", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "reviewid")
+@Table(name="reviews", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "id")
 })
-public class Review {
+public class Review extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="reviewid")
-    private int reviewid;
-    private String productName;
-    private String pros;
-    private String cons;
-    private String personalExperince;
-    private int rating;
+    @Column(name="id")
+    private Long id;
+
+    private double rating;
+
+    @Column(name = "details", length = 1000)
+    private String details;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    @JsonBackReference
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
-
 }

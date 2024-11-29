@@ -1,6 +1,6 @@
 package edu.ilstu.bdecisive.controllers;
 
-import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
+import edu.ilstu.bdecisive.dtos.CategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.services.CategoryService;
@@ -30,13 +30,13 @@ public class CategoryController {
     }
 
     @GetMapping("global")
-    public ResponseEntity<List<GlobalCategoryDTO>> listGlobalCategory() {
+    public ResponseEntity<List<CategoryDTO>> listGlobalCategory() {
         return ResponseEntity.ok(categoryService.listGlobalCategory());
     }
 
     @GetMapping("vendor-list")
     @PreAuthorize("hasRole('ROLE_VENDOR')")
-    public ResponseEntity<List<CategoryResponseDTO>> getPendingApproval() {
+    public ResponseEntity<List<CategoryResponseDTO>> getPendingApproval() throws ServiceException {
         return ResponseEntity.ok(categoryService.vendorCategoryList());
     }
 

@@ -75,7 +75,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorDTO getVendorByUserId(Long userId) {
+    public VendorDTO getVendorByUserId(Long userId) throws ServiceException {
         User user = userService.findUserById(userId);
         Vendor vendor = vendorRepository.findByUser(user).orElse(null);
 

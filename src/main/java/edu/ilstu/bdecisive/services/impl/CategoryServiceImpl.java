@@ -1,6 +1,6 @@
 package edu.ilstu.bdecisive.services.impl;
 
-import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
+import edu.ilstu.bdecisive.dtos.CategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.dtos.VendorDTO;
@@ -79,27 +79,28 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponseDTO> vendorCategoryList() {
+    public List<CategoryResponseDTO> vendorCategoryList() throws ServiceException {
         User currentUser = userService.getCurrentUser();
         List<Category> categories = categoryRepository.findByUser(currentUser);
         return getCategoryResponseDTOS(categories);
     }
 
     @Override
-    public List<GlobalCategoryDTO> listGlobalCategory() {
+    public List<CategoryDTO> listGlobalCategory() {
         // Fetch matching categories
         List<Category> categories = categoryRepository.findByApproved(true);
 
         return categories.stream().map(category ->
-                new GlobalCategoryDTO(category.getId(), category.getName())).collect(Collectors.toList());
+                new CategoryDTO(category.getId(), category.getName())).collect(Collectors.toList());
     }
 
     @Override
-    public Category findCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElse(null);
+    public Category findById(Long categoryId) throws ServiceException {
+        return categoryRepository.findById(categoryId).orElseThrow(()
+                -> new ServiceException("Category not found", HttpStatus.NOT_FOUND));
     }
 
-    private List<CategoryResponseDTO> getCategoryResponseDTOS(List<Category> categories) {
+    private List<CategoryResponseDTO> getCategoryResponseDTOS(List<Category> categories) throws ServiceException {
         List<CategoryResponseDTO> list = new ArrayList<>();
         for (Category category : categories) {
             CategoryResponseDTO categoryResponseDTO = new CategoryResponseDTO();

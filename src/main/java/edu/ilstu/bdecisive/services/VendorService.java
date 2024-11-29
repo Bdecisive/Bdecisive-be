@@ -14,5 +14,5 @@ public interface VendorService {
     List<VendorDTO> list();
     boolean approveVendorAccount(Long vendorId) throws ServiceException;
     boolean rejectVendorAccount(Long vendorId) throws ServiceException;
-    VendorDTO getVendorByUserId(Long userId);
+    VendorDTO getVendorByUserId(Long userId) throws ServiceException;
 }

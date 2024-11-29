@@ -1,6 +1,6 @@
 package edu.ilstu.bdecisive.services;
 
-import edu.ilstu.bdecisive.dtos.GlobalCategoryDTO;
+import edu.ilstu.bdecisive.dtos.CategoryDTO;
 import edu.ilstu.bdecisive.dtos.CategoryRequestDTO;
 import edu.ilstu.bdecisive.dtos.CategoryResponseDTO;
 import edu.ilstu.bdecisive.models.Category;
@@ -16,11 +16,11 @@ public interface CategoryService {
     Optional<Category> findByCategoryName(String categoryName);
 
     List<CategoryResponseDTO> list(Optional<String> name, Optional<String> description, Optional<Boolean> approved) throws ServiceException;
-    List<CategoryResponseDTO> vendorCategoryList();
+    List<CategoryResponseDTO> vendorCategoryList() throws ServiceException;
 
-    List<GlobalCategoryDTO> listGlobalCategory();
+    List<CategoryDTO> listGlobalCategory();
 
-    Category findCategoryById(Long categoryId);
+    Category findById(Long categoryId) throws ServiceException;
 }
 
 
