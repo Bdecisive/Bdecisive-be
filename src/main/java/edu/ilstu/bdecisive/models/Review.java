@@ -1,15 +1,15 @@
 package edu.ilstu.bdecisive.models;
 
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="reviews", uniqueConstraints = {
@@ -23,21 +23,34 @@ public class Review extends BaseEntity {
 
     private double rating;
 
-    @Column(name = "details", length = 1000)
+    @Column(name = "details", length = 10000)
     private String details;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @JsonBackReference
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JsonBackReference
+    private List<ReviewLike> likes = new ArrayList<>();
+
+    public boolean isLikedByUser(Long userId) {
+        return likes.stream()
+                .anyMatch(like -> like.getUser().getUserId().equals(userId));
+    }
+
+    public int getLikeCount() {
+        return likes.size();
+    }
 }

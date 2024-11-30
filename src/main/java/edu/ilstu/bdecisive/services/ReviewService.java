@@ -23,4 +23,12 @@ public interface ReviewService {
     void create(ReviewRequestDTO requestDTO) throws ServiceException;
 
     void delete(Long reviewId) throws ServiceException;
+
+    List<ReviewDTO> getAllReviews();
+
+    ReviewDTO getReview(Long reviewId) throws ServiceException;
+
+    ReviewDTO likeReview(Long reviewId) throws ServiceException;
+
+    ReviewDTO unlikeReview(Long reviewId) throws ServiceException;
 }

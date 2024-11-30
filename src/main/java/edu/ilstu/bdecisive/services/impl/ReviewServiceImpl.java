@@ -4,25 +4,31 @@ import edu.ilstu.bdecisive.dtos.CategoryDTO;
 import edu.ilstu.bdecisive.dtos.ProductDTO;
 import edu.ilstu.bdecisive.dtos.ReviewDTO;
 import edu.ilstu.bdecisive.dtos.ReviewRequestDTO;
-import edu.ilstu.bdecisive.models.Category;
-import edu.ilstu.bdecisive.models.Product;
-import edu.ilstu.bdecisive.models.Review;
-import edu.ilstu.bdecisive.models.User;
+import edu.ilstu.bdecisive.models.*;
+import edu.ilstu.bdecisive.repositories.ReviewLikeRepository;
 import edu.ilstu.bdecisive.repositories.ReviewRepository;
 import edu.ilstu.bdecisive.services.CategoryService;
 import edu.ilstu.bdecisive.services.ProductService;
 import edu.ilstu.bdecisive.services.ReviewService;
 import edu.ilstu.bdecisive.services.UserService;
 import edu.ilstu.bdecisive.utils.ServiceException;
+import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
+@Transactional
 public class ReviewServiceImpl implements ReviewService {
+    private static final Logger log = LoggerFactory.getLogger(ReviewServiceImpl.class);
     @Autowired
     private ReviewRepository reviewRepository;
 
@@ -35,6 +41,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ReviewLikeRepository reviewLikeRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public void deleteByProduct(Product product) {
@@ -67,6 +79,23 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewDTO> getAllReviews() {
+        List<Review> reviews = reviewRepository.findAll();
+        User currentUser = userService.getCurrentUser();
+        return reviews.stream().map(review -> mapToDTO(review, currentUser)).toList();
+    }
+
+    @Transactional
+    @Override
+    public ReviewDTO getReview(Long reviewId) throws ServiceException {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new ServiceException("Review not found", HttpStatus.NOT_FOUND));
+
+        User currentUser = userService.getCurrentUser();
+        return mapToDTO(review, currentUser);
+    }
+
+    @Override
     public void deleteByProductId(Long productId) throws ServiceException {
         Product product = productService.findById(productId);
         List<Review> reviews = reviewRepository.findByProduct(product);
@@ -79,8 +108,9 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviews = reviewRepository.findByProduct(product);
         ProductDTO productDto = convertToProductDto(product);
         CategoryDTO categoryDto = convetToCategoryDto(product.getCategory());
+        User currentUser = userService.getCurrentUser();
         return reviews.stream().map(review ->
-                convertToReviewDto(review, productDto, categoryDto)).toList();
+                convertToReviewDto(review, productDto, categoryDto, currentUser.getUserId())).toList();
     }
 
     @Override
@@ -88,9 +118,11 @@ public class ReviewServiceImpl implements ReviewService {
         Category category = categoryService.findById(categoryId);
         List<Review> reviews = reviewRepository.findByCategory(category);
         CategoryDTO categoryDto = convetToCategoryDto(category);
-
+        User currentUser = userService.getCurrentUser();
         return reviews.stream().map(review ->
-                convertToReviewDto(review, convertToProductDto(review.getProduct()), categoryDto)).toList();
+                convertToReviewDto(review, convertToProductDto(review.getProduct()),
+                        categoryDto, currentUser.getUserId()))
+                .toList();
     }
 
     @Override
@@ -98,10 +130,10 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userService.findUserById(userId);
         List<Review> reviews = reviewRepository.findByUser(user);
 
+        User currentUser = userService.getCurrentUser();
+
         return reviews.stream().map(review ->
-                convertToReviewDto(review,
-                        convertToProductDto(review.getProduct()),
-                        convetToCategoryDto(review.getCategory())))
+                mapToDTO(review, currentUser))
                 .toList();
     }
 
@@ -110,14 +142,71 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found with ID: " + reviewId));
 
-        // Optional: Update only the fields provided
         review.setRating(requestDTO.getRating());
         review.setDetails(requestDTO.getDetails());
 
         reviewRepository.save(review);
     }
 
-    private ReviewDTO convertToReviewDto(Review review, ProductDTO productDto, CategoryDTO categoryDto) {
+    @Override
+    public ReviewDTO likeReview(Long reviewId) throws ServiceException {
+        User currentUser = userService.getCurrentUser();
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ServiceException("Review not found", HttpStatus.NOT_FOUND));
+
+        Optional<ReviewLike> existingLike = reviewLikeRepository
+                .findByReviewAndUser(review, currentUser);
+
+        if (existingLike.isPresent()) {
+            throw new ServiceException("Review already liked by user", HttpStatus.BAD_REQUEST);
+        }
+
+        ReviewLike like = new ReviewLike();
+        like.setReview(review);
+        like.setUser(currentUser);
+        reviewLikeRepository.save(like);
+
+        return mapToDTO(review, currentUser);
+    }
+
+    @Override
+    @Transactional
+    public ReviewDTO unlikeReview(Long reviewId) throws ServiceException {
+        User currentUser = userService.getCurrentUser();
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ServiceException("Review not found", HttpStatus.NOT_FOUND));
+
+        ReviewLike like = reviewLikeRepository
+                .findByReviewAndUser(review, currentUser)
+                .orElseThrow(() -> new ServiceException("Like not found", HttpStatus.NOT_FOUND));
+
+        // Detach the review to avoid cascading issues
+        entityManager.detach(review);
+
+        // Delete the like
+        reviewLikeRepository.delete(like);
+        reviewLikeRepository.flush();  // Force the delete to be executed
+
+        // Refresh the review to get updated like count
+        review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ServiceException("Review not found", HttpStatus.NOT_FOUND));
+
+        return mapToDTO(review, currentUser);
+    }
+
+    private ReviewDTO mapToDTO(Review review, User currentUser) {
+        Long currentUserId = null;
+        if (currentUser != null) {
+            currentUserId = currentUser.getUserId();
+        }
+        return convertToReviewDto(review,
+                convertToProductDto(review.getProduct()),
+                convetToCategoryDto(review.getCategory()), currentUserId);
+    }
+
+    private ReviewDTO convertToReviewDto(
+            Review review, ProductDTO productDto, CategoryDTO categoryDto, Long currentUserId) {
         ReviewDTO dto = new ReviewDTO();
         dto.setId(review.getId());
         dto.setProduct(productDto);
@@ -125,6 +214,11 @@ public class ReviewServiceImpl implements ReviewService {
         dto.setRating(review.getRating());
         dto.setDetails(review.getDetails());
         dto.setCreatedAt(String.valueOf(review.getCreatedAt()));
+        dto.setLikeCount(review.getLikeCount());
+
+        if (currentUserId != null) {
+            dto.setLikedByUser(review.isLikedByUser(currentUserId));
+        }
         return dto;
     }
 

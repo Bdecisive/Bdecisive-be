@@ -15,9 +15,12 @@ import edu.ilstu.bdecisive.security.services.UserDetailsImpl;
 import edu.ilstu.bdecisive.services.UserService;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import jakarta.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +39,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Value("${base.url}")
     String frontendUrl;
@@ -172,10 +177,6 @@ public class UserServiceImpl implements UserService {
         Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
         PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
         passwordResetTokenRepository.save(resetToken);
-
-//        String resetUrl = frontendUrl + "/reset-password?token=" + token;
-        // Send email to user
-//        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);
     }
 
 
@@ -224,14 +225,70 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+//    public User getCurrentUser() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        // Check if authentication exists and the user is authenticated
+//        if (authentication != null && authentication.isAuthenticated()
+//                && authentication.getPrincipal() instanceof UserDetailsImpl) {
+//            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//            Optional<User> user = userRepository.findById(userDetails.getId());
+//            return user.orElse(null); // Return null if user not found
+//        }
+//        return null;
+//    }
+
     public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Optional<User> user = userRepository.findById(userDetails.getId());
-            return user.orElseThrow(() -> new RuntimeException("User not found"));
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Check if user is not authenticated or is anonymous
+            if (authentication == null ||
+                    !authentication.isAuthenticated() ||
+                    authentication instanceof AnonymousAuthenticationToken) {
+                return null;
+            }
+
+            Object principal = authentication.getPrincipal();
+
+            // Handle different principal types
+            if (principal instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+                return userRepository.findById(userDetails.getId())
+                        .orElse(null);
+            } else if (principal instanceof String) {
+                return null;
+            }
+
+            log.debug("Unknown principal type: {}", principal.getClass());
+            return null;
+
+        } catch (Exception e) {
+            log.error("Error while getting current user", e);
+            return null;
         }
-        return null;
+    }
+
+    // Helper method to check if user is authenticated
+    public boolean isAuthenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return authentication != null &&
+                    authentication.isAuthenticated() &&
+                    !(authentication instanceof AnonymousAuthenticationToken);
+        } catch (Exception e) {
+            log.error("Error checking authentication status", e);
+            return false;
+        }
+    }
+
+    public Long getCurrentUserId() {
+        User currentUser = getCurrentUser();
+        return currentUser != null ? currentUser.getUserId() : null;
+    }
+
+    public Optional<User> getCurrentUserOptional() {
+        return Optional.ofNullable(getCurrentUser());
     }
 
     @Override
@@ -264,15 +321,6 @@ public class UserServiceImpl implements UserService {
             if (userProfileDTO.getEmail() != null){
                 user.setEmail(userProfileDTO.getEmail());
             }
-//            if (userProfileDTO.getPhoneNumber() != null) {
-//                user.setPhoneNumber(userProfileDTO.getPhoneNumber());
-//            }
-//            if (userProfileDTO.getPassword() != null) {
-//                user.setPassword(passwordEncoder.encode(userProfileDTO.getPassword()));
-//            }
-//            if (userProfileDTO.getProfilePictureUrl() != null) {
-//                user.setProfilePictureUrl(userProfileDTO.getProfilePictureUrl());
-//            }
 
             userRepository.save(user);
         } catch (Exception e) {

@@ -16,5 +16,9 @@ public class ReviewDTO {
 
     private String details;
 
+    private int likeCount;
+
+    private boolean isLikedByUser;
+
     private String createdAt;
 }

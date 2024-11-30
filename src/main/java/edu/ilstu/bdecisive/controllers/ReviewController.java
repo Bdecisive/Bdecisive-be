@@ -19,10 +19,22 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @GetMapping
+    public ResponseEntity<List<ReviewDTO>> getAllReviews() {
+        List<ReviewDTO> reviews = reviewService.getAllReviews();
+        return ResponseEntity.ok(reviews);
+    }
+
     @PostMapping("create")
     public ResponseEntity<String> create(@Valid @RequestBody ReviewRequestDTO reviewRequestDTO) throws ServiceException {
         reviewService.create(reviewRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("Review created successfully!");
+    }
+
+    @GetMapping("{reviewId}")
+    public ResponseEntity<ReviewDTO> geReview(@PathVariable Long reviewId) throws ServiceException {
+        ReviewDTO review = reviewService.getReview(reviewId);
+        return ResponseEntity.ok(review);
     }
 
     @GetMapping("product/{productId}")
@@ -57,5 +69,17 @@ public class ReviewController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
+    }
+
+    @PostMapping("{reviewId}/like")
+    public ResponseEntity<ReviewDTO> likeReview(@PathVariable Long reviewId) throws ServiceException {
+        ReviewDTO review = reviewService.likeReview(reviewId);
+        return ResponseEntity.ok(review);
+    }
+
+    @PostMapping("{reviewId}/unlike")
+    public ResponseEntity<ReviewDTO> unlikeReview(@PathVariable Long reviewId) throws ServiceException {
+        ReviewDTO review = reviewService.unlikeReview(reviewId);
+        return ResponseEntity.ok(review);
     }
 }
