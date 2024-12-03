@@ -225,19 +225,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-//    public User getCurrentUser() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        // Check if authentication exists and the user is authenticated
-//        if (authentication != null && authentication.isAuthenticated()
-//                && authentication.getPrincipal() instanceof UserDetailsImpl) {
-//            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//            Optional<User> user = userRepository.findById(userDetails.getId());
-//            return user.orElse(null); // Return null if user not found
-//        }
-//        return null;
-//    }
-
     public User getCurrentUser() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -327,6 +314,4 @@ public class UserServiceImpl implements UserService {
             throw new ServiceException("Fail to update user profile.", HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }
