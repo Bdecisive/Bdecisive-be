@@ -46,7 +46,7 @@ public class UserController {
         return (userDetails != null) ? userDetails.getUsername() : "";
     }
 
-    @PutMapping("/profile/update")
+    @PutMapping("profile/update")
     public ResponseEntity<String> updateProfile(@RequestBody UserDTO userProfileDTO, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             Optional<User> userOpt = userService.findByUsername(userDetails.getUsername());
