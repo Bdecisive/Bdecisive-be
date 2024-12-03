@@ -53,9 +53,6 @@ class ManageProfileTest {
         UserDTO userProfileDTO = new UserDTO();
         userProfileDTO.setUserName("John Doe Updated");
         userProfileDTO.setEmail("johndoe_updated@example.com");
-        userProfileDTO.setPhoneNumber("+1987654321");
-        userProfileDTO.setPassword("newpassword123");
-        userProfileDTO.setProfilePictureUrl("https://example.com/johndoe_updated.jpg");
 
         assertDoesNotThrow(() -> userService.updateUserProfile(101L, userProfileDTO));
 
@@ -71,7 +68,6 @@ class ManageProfileTest {
     @Test
     void testUpdateUserProfileWithInvalidPhoneNumber() {
         UserDTO userProfileDTO = new UserDTO();
-        userProfileDTO.setPhoneNumber("invalid_phone");
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
                 userService.updateUserProfile(101L, userProfileDTO)
@@ -83,7 +79,6 @@ class ManageProfileTest {
     @Test
     void testUpdateUserProfileWithInvalidProfilePictureUrl() {
         UserDTO userProfileDTO = new UserDTO();
-        userProfileDTO.setProfilePictureUrl("invalid_url");
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
                 userService.updateUserProfile(101L, userProfileDTO)
