@@ -42,9 +42,14 @@ public class JwtUtils {
         String roles = userDetails.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));
+        String name = userDetails.getFirstName() + " " + userDetails.getLastName();
+        long id = userDetails.getId();
         return Jwts.builder()
                 .subject(username)
+                .claim("id", id)
                 .claim("roles", roles)
+                .claim("name", name)
+                .claim("email", userDetails.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key())

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 
 @Getter
-public class ServiceException extends RuntimeException {
+public class ServiceException extends Exception {
     private final HttpStatus status;
     private final LocalDateTime timestamp;
 
