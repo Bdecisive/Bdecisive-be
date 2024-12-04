@@ -1,16 +1,10 @@
 package edu.ilstu.bdecisive.services.impl;
 
-import edu.ilstu.bdecisive.dtos.CategoryDTO;
-import edu.ilstu.bdecisive.dtos.ProductDTO;
-import edu.ilstu.bdecisive.dtos.ReviewDTO;
-import edu.ilstu.bdecisive.dtos.ReviewRequestDTO;
+import edu.ilstu.bdecisive.dtos.*;
 import edu.ilstu.bdecisive.models.*;
 import edu.ilstu.bdecisive.repositories.ReviewLikeRepository;
 import edu.ilstu.bdecisive.repositories.ReviewRepository;
-import edu.ilstu.bdecisive.services.CategoryService;
-import edu.ilstu.bdecisive.services.ProductService;
-import edu.ilstu.bdecisive.services.ReviewService;
-import edu.ilstu.bdecisive.services.UserService;
+import edu.ilstu.bdecisive.services.*;
 import edu.ilstu.bdecisive.utils.ServiceException;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
@@ -47,6 +41,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private CommentService commentService;
 
     @Override
     public void deleteByProduct(Product product) {
@@ -92,7 +89,11 @@ public class ReviewServiceImpl implements ReviewService {
                 () -> new ServiceException("Review not found", HttpStatus.NOT_FOUND));
 
         User currentUser = userService.getCurrentUser();
-        return mapToDTO(review, currentUser);
+
+        List<CommentDTO> comments = commentService.getCommentsByReview(reviewId);
+        ReviewDTO dto = mapToDTO(review, currentUser);
+        dto.setComments(comments);
+        return dto;
     }
 
     @Override
@@ -218,6 +219,11 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (currentUserId != null) {
             dto.setLikedByUser(review.isLikedByUser(currentUserId));
+        }
+
+        User user = review.getUser();
+        if (user != null) {
+            dto.setName(user.getFirstName() + " " + user.getLastName());
         }
         return dto;
     }

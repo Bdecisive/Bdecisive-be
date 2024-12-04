@@ -36,6 +36,8 @@ public class InfluencerServiceImpl implements InfluencerService {
 
         // Create new user's account
         User user = new User(influencerDTO.getUsername(), influencerDTO.getEmail(), influencerDTO.getPassword());
+        user.setFirstName(influencerDTO.getFirstName());
+        user.setLastName(influencerDTO.getLastName());
         user = userService.registerUser(user, AppRole.ROLE_INFLUENCER, false);
 
         // Create influencer account

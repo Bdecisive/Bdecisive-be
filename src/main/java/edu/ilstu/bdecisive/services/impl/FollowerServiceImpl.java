@@ -28,6 +28,9 @@ public class FollowerServiceImpl implements FollowerService {
         validateUser(requestDTO);
         // Create new user's account
         User user = new User(requestDTO.getUsername(), requestDTO.getEmail(), requestDTO.getPassword());
+        user.setFirstName(requestDTO.getFirstName());
+        user.setLastName(requestDTO.getLastName());
+
         user = userService.registerUser(user, AppRole.ROLE_FOLLOWER, false);
 
         // Create follower account
