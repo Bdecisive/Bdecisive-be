@@ -3,6 +3,8 @@ package edu.ilstu.bdecisive.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ReviewDTO {
@@ -11,6 +13,8 @@ public class ReviewDTO {
     private ProductDTO product;
 
     private CategoryDTO category;
+
+    private String name;
 
     private double rating;
 
@@ -21,4 +25,6 @@ public class ReviewDTO {
     private boolean isLikedByUser;
 
     private String createdAt;
+
+    private List<CommentDTO> comments;
 }
