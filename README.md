@@ -51,5 +51,71 @@ For example, the user goes to the web application and searches a product. The we
 The Controller receives the request and the user wants to search for a product. 
 Then, it calls the Service that contains the logic for searching a product. 
 The Service checks the logic for searching a product. To get the list of related products, 
-the service calls the Repository Interface, which sends a query to the database layer. 
-The Database Layer retrieves the list of the products 
+the service, with the help of the Repository Interface, sends a query to the database layer. 
+The Database Layer retrieves the list of the products and sends it back to the Service .
+
+## Description of Classes and Packages 
+
+### Controllers package:
+The controller package includes all the controller classes including the
+AdminController that works with logic for the admin, AuthController which 
+works with the logic for authenticating/verifying users, CategoryController which
+handles logic for approving, creating and updating categories, CommentController
+which handles logic for followers to make comments, FavoriteProductController
+which handles logic for a user to be able to favorite a product, FollowerController
+which handles logic for creating a follower account, InfluencerController which handles
+the logic for the creation of an influencer account, ProductController which handles the 
+logic for creating, updating and deleting a product, the ReviewController which handles
+the logic for creating reviews, the UserController which handles creating a general account
+and updating profile logic and finally, the VendorController which has logic for creating 
+and approving a Vendor account. 
+
+### DTOs
+The DTO package includes a classes for managing data transfer efficiently for each class. 
+For example, there is a Category, CategoryRequest, CategoryResponse DTO for category,
+Comment and CommentRequest DTOs for comment data, FollowerDTO for follower data, InfluencerDTO
+for influencer data, Product, ProductRequest, and ProductResponse DTOs for product data. 
+ProductReview and Review and ReviewRequest DTOs for product review data, User and UserResponse, and 
+VerifyUser DTOs for handling general user data, Vendor, VendorRequest, and VendorResponse for
+vendor data. 
+
+### Enums
+The enum package include an AppRole enum for Admin, Follower, Influencer and Vendor. 
+
+### Exceptions
+Include common exceptions that need to be thrown such as validation error response. 
+
+### Mailing
+The mailing package includes logic for email verification of users.
+
+### Models 
+The model classes represent the data of our application, 
+mirroring the structure of our database tables 
+or the data we're working with.
+They also hold the attributes and properties of our entities, 
+making it easy to access and manipulate data.
+Briefly listing the model classes, there is BaseEntity,
+Category, Comment, FavoriteProduct, Follower, Influencer,
+PassWordRestToken, Product, Review, ReviewLike, Role,
+User and Vendor. All these classes also interact with 
+the database and service classes.
+
+### Repositories 
+The repositories contain logic that allows for 
+mechanisms for storage, retrieval, update, delete, and searching 
+and there is one for almost each model class, stated above. 
+
+### Security 
+The security package includes logic 
+for security including configuration 
+for web and general security, making
+sure our data is safe. 
+
+### Service 
+The service class includes logic for the core
+business logic of our application. 
+They encapsulate the operations and processes 
+that manipulate data and implement the application's functionality.
+The interfaces such as CategoryService define what is to be expected
+in the CategoryServiceImpl which holds the main logic for approving, 
+creating and updating a category.  

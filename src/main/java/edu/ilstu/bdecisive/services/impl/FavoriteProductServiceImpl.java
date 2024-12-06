@@ -39,11 +39,13 @@ public class FavoriteProductServiceImpl implements FavoriteProductService {
             throw new ServiceException("Product is already in favorites", HttpStatus.BAD_REQUEST);
         }
 
-        // Add product to favorites
-        FavoriteProduct favoriteProduct = new FavoriteProduct();
-        favoriteProduct.setUser(user);
-        favoriteProduct.setProduct(product);
-        favoriteProductRepository.save(favoriteProduct);
+        else {
+            // Add product to favorites
+            FavoriteProduct favoriteProduct = new FavoriteProduct();
+            favoriteProduct.setUser(user);
+            favoriteProduct.setProduct(product);
+            favoriteProductRepository.save(favoriteProduct);
+        }
     }
 
     @Override
